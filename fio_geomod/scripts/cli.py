@@ -14,7 +14,7 @@ from fio_geomod import modulate
 )
 @click.option(
     "--pipeline",
-    help='A shapely geometry pipeline such as "buffer(100.0).simplify(5.0)".',
+    help="A shapely geometry pipeline such as 'buffer(100.0).simplify(5.0)'.",
 )
 @use_rs_opt
 @click.pass_context
