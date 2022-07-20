@@ -23,7 +23,7 @@ setup(
     zip_safe=False,
     install_requires=["click", "cligj", "fiona", "shapely"],
     extras_require={
-        "test": ["pytest"],
+        "test": ["pytest-cov"],
     },
     entry_points="""
       [fiona.fio_commands]
