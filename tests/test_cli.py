@@ -8,8 +8,6 @@ def test_cli_count():
         data = seq.read()
 
     runner = CliRunner()
-    result = runner.invoke(
-        main_group, ["geomod", "--pipeline", "buffer(1.0).centroid"], input=data
-    )
+    result = runner.invoke(main_group, ["geomod", "buffer(1.0).centroid"], input=data)
     assert result.exit_code == 0
     assert result.output.count('"type": "Point"') == 3

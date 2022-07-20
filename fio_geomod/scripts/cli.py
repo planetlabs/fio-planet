@@ -12,9 +12,8 @@ from fio_geomod import modulate
 @click.command(
     "geomod", short_help="Modulate the geometries of a stream of GeoJSON features."
 )
-@click.option(
-    "--pipeline",
-    help="A shapely geometry pipeline such as 'buffer(100.0).simplify(5.0)'.",
+@click.argument(
+    "pipeline",
 )
 @use_rs_opt
 @click.pass_context
@@ -24,6 +23,15 @@ def geomod(ctx, pipeline, use_rs):
     Given a sequence of GeoJSON features (RS-delimited or not) on stdin
     this prints copies with geometries that are modulated, transformed,
     using a provided transformation pipeline.
+
+    A geometry modulating pipeline uses the shapely package and is
+    expressed using methods and attributes of shapely geometries. For
+    example,
+
+        'buffer(100.0).simplify(5.0)'
+
+    buffers input geometries and then
+    simplifies them so that no vertices are closer than 5 units.
 
     """
     stdin = click.get_text_stream("stdin")
