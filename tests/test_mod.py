@@ -24,5 +24,5 @@ def test_modulate():
         collection = json.loads(src.read())
 
     feat = collection["features"][0]
-    new_feat = modulate(feat, "buffer(0.01).simplify(0.001)")
+    new_feat = modulate(feat, "(simplify (buffer g 0.01) 0.001)")
     assert new_feat["geometry"]["type"] == "Polygon"

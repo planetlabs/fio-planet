@@ -17,6 +17,7 @@
 from copy import copy
 
 from shapely.geometry import mapping, shape
+import snuggs
 
 __version__ = "1.0dev"
 
@@ -52,7 +53,11 @@ def modulate(feature, pipeline):
     geom = shape(feature["geometry"])
     localvars = {"g": geom}
 
-    new_geom = eval(f"g.{pipeline}", {}, localvars)
+    # TODO: add more shapely methods.
+    snuggs.func_map["buffer"] = lambda g, *args, **kwargs: g.buffer(*args, **kwargs)
+    snuggs.func_map["centroid"] = lambda g: g.centroid
+    snuggs.func_map["simplify"] = lambda g, *args, **kwargs: g.simplify(*args, **kwargs)
+    new_geom = snuggs.eval(pipeline, g=geom)
 
     new_feat = copy(feature)
     new_feat["geometry"] = mapping(new_geom)
