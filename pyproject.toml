@@ -1,0 +1,38 @@
+[build-system]
+requires = ["flit_core>=3.2"]
+build-backend = "flit_core.buildapi"
+
+[project]
+name = "fio-geomod"
+version = "1.0dev"
+description = "Modulate and modify geometries of GeoJSON features"
+readme = "README.rst"
+authors = [{name = "Sean Gillies"}]
+maintainers = [
+    {name = "Planet Developer Relations", email = "developers@planet.com"}
+]
+classifiers = [
+    "Development Status :: 1 - Planning",
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: Apache Software License",
+]
+keywords = [
+    "GeoJSON",
+    "GIS",
+    "CLI",
+]
+license = {text = "Apache License, Version 2.0"}
+requires-python = ">=3.7"
+dependenencies = [
+    "fiona",
+    "shapely",
+]
+
+[project.optional-dependenencies]
+test = ["pytest-cov"]
+
+[project.entry-points."fiona.fio_commands"]
+geomod = "fio_geomod.scripts.cli:geomod"
+
+[tool.flit.module]
+name = "fio_geomod"
