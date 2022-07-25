@@ -52,8 +52,8 @@ def modulate(feature, pipeline):
     geom = shape(feature["geometry"])
     localvars = {"g": geom}
 
-    exec(f"new_geom = g.{pipeline}", {}, localvars)
+    new_geom = eval(f"g.{pipeline}", {}, localvars)
 
     new_feat = copy(feature)
-    new_feat["geometry"] = mapping(localvars["new_geom"])
+    new_feat["geometry"] = mapping(new_geom)
     return new_feat
