@@ -20,9 +20,14 @@ from fio_geomod import modulate
 
 
 def test_modulate():
+    """Exercise a fairly complicated pipeline."""
     with open("tests/data/trio.geojson") as src:
         collection = json.loads(src.read())
 
     feat = collection["features"][0]
-    new_feat = modulate(feat, "buffer(0.01).simplify(0.001)")
+    new_feat = modulate(
+        feat,
+        "(simplify (buffer g (* 0.1 2) :resolution (- 4 3)) 0.001 :preserve_topology false)",
+    )
     assert new_feat["geometry"]["type"] == "Polygon"
+    assert len(new_feat["geometry"]["coordinates"][0]) == 5

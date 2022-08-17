@@ -17,6 +17,7 @@
 from copy import copy
 
 from shapely.geometry import mapping, shape
+from . import snuggs
 
 __version__ = "1.0dev"
 
@@ -26,16 +27,22 @@ def modulate(feature, pipeline):
     transformations.
 
     The pipeline is a string which, when evaluated by fio-geomod,
-    produces a new geometry object. The syntax is essentially a Python
-    expression beginning with an optional "g.", where g is a Shapely
-    geometry object constructed from the feature's GeoJSON geometry.
+    produces a new geometry object. The pipeline consists of
+    expressions in the form of parenthesized lists, which may contain
+    other expressions. The first item in a list is the name of a
+    Shapely geometry attribute or method. The second is the name of a
+    Shapely geometry object or an expression that evaluates to a
+    geometry object. The remaining list items are the positional and
+    keyword arguments for the named method. The name of the input
+    feature's geometry in the context of these expressions is "g".
 
     Parameters
     ----------
     feature : Feature
         A Fiona feature.
     pipeline : string
-        Geometry operation pipeline such as "buffer(2.0).exterior".
+        Geometry operation pipeline such as
+        "(exterior (buffer g 2.0))".
 
     Returns
     -------
@@ -43,16 +50,18 @@ def modulate(feature, pipeline):
         A copy of the input feature, with a modulated geometry.
 
     """
-    # The "g." is optional.
-    pipeline = pipeline.lstrip("g.")
-
     # Set up the expression evaluation context. We might extend this
     # using something like timeit's "--setup" statements, allowing a
     # user to define clip geometries, other things.
     geom = shape(feature["geometry"])
     localvars = {"g": geom}
 
-    new_geom = eval(f"g.{pipeline}", {}, localvars)
+    # TODO: add more shapely methods.
+    snuggs.func_map["area"] = lambda g: g.area
+    snuggs.func_map["buffer"] = lambda g, *args, **kwargs: g.buffer(*args, **kwargs)
+    snuggs.func_map["centroid"] = lambda g: g.centroid
+    snuggs.func_map["simplify"] = lambda g, *args, **kwargs: g.simplify(*args, **kwargs)
+    new_geom = snuggs.eval(pipeline, g=geom)
 
     new_feat = copy(feature)
     new_feat["geometry"] = mapping(new_geom)
