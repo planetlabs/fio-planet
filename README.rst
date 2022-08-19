@@ -1,8 +1,8 @@
 fio-planet
 ==========
 
-fio-planet is a package of Fiona CLI plugins from Planet Labs. It modulates and modifies the geometries of
-GeoJSON features.
+fio-planet is a package of Fiona CLI plugins from Planet Labs. It modulates and
+modifies the geometries of GeoJSON features.
 
 Installation
 ------------
