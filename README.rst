@@ -1,7 +1,7 @@
-fio-geomod
+fio-planet
 ==========
 
-fio-geomod is a Fiona CLI plugin. It modulates and modifies the geometries of
+fio-planet is a package of Fiona CLI plugins from Planet Labs. It modulates and modifies the geometries of
 GeoJSON features.
 
 Installation
@@ -9,12 +9,15 @@ Installation
 
 .. code-block:: console
 
-   $ pip install fio-geomod
+   $ pip install fio-planet
 
 Command line interface
 ----------------------
 
-fio-geomod adds a "geomod" command to Fiona's ``fio`` program. The geomod
+fio-geomod
+==========
+
+fio-planet adds a "geomod" command to Fiona's ``fio`` program. The geomod
 command works as a filter for streams of compact or ASCII RS-delimited GeoJSON
 features. For each feature read from stdin, geomod applies a transformation
 pipeline of one or more steps described using methods from the Shapely library

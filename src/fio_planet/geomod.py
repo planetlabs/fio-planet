@@ -1,4 +1,4 @@
-# fio_geomod
+# geomod.py: module supporting "fio geomod".
 #
 # Copyright 2022 Planet Labs PBC
 #

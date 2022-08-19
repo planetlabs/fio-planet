@@ -16,7 +16,7 @@
 
 import json
 
-from fio_geomod import modulate
+from fio_planet.geomod import modulate
 
 
 def test_modulate():

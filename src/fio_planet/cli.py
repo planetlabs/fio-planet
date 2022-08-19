@@ -1,4 +1,4 @@
-# Command line interface
+# cli.py: command line interface.
 #
 # Copyright 2022 Planet Labs PBC
 #
@@ -20,7 +20,7 @@ import click
 from cligj import use_rs_opt
 from fiona.fio.helpers import obj_gen
 
-from fio_geomod import modulate
+from fio_planet.geomod import modulate
 
 
 @click.command(

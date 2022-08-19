@@ -1,4 +1,4 @@
-# fio_geomod
+# fio_planet: a package of Fiona CLI plugins from Planet Labs.
 #
 # Copyright 2022 Planet Labs PBC
 #
