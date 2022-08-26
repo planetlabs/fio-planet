@@ -4,7 +4,7 @@ build-backend = "flit_core.buildapi"
 
 [project]
 name = "fio-planet"
-version = "1.0dev"
+version = "1.0dev0"
 description = "Planet Labs plugins for the Fiona CLI"
 readme = "README.rst"
 authors = [{name = "Sean Gillies"}]
@@ -33,6 +33,8 @@ test = ["pytest-cov"]
 
 [project.entry-points."fiona.fio_commands"]
 geomod = "fio_planet.cli:geomod"
+geomcalc = "fio_planet.cli:geomcalc"
+geodump = "fio_planet.cli:geodump"
 
 [tool.flit.module]
 name = "fio_planet"

@@ -1,4 +1,4 @@
-# fio_planet: a package of Fiona CLI plugins from Planet Labs.
+# geomcalc.py: module supporting "fio coords".
 #
 # Copyright 2022 Planet Labs PBC
 #
@@ -14,4 +14,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-__version__ = "1.0dev0"
+from shapely.geometry import shape
+
+from . import snuggs
+
+
+def calculate(feat, expression):
+    geom = shape(feat["geometry"])
+    return snuggs.eval(expression, g=geom, f=feat)

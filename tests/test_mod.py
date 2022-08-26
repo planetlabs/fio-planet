@@ -16,18 +16,22 @@
 
 import json
 
-from fio_planet.geomod import modulate
+import shapely
+
+from fio_planet.modulate import modulate
 
 
 def test_modulate():
     """Exercise a fairly complicated pipeline."""
+    bufkwd = "resolution" if shapely.__version__.startswith("1") else "quadsegs"
+
     with open("tests/data/trio.geojson") as src:
         collection = json.loads(src.read())
 
     feat = collection["features"][0]
     new_feat = modulate(
         feat,
-        "(simplify (buffer g (* 0.1 2) :resolution (- 4 3)) 0.001 :preserve_topology false)",
+        f"(simplify (buffer g (* 0.1 2) :{bufkwd} (- 4 3)) 0.001 :preserve_topology false)",
     )
     assert new_feat["geometry"]["type"] == "Polygon"
     assert len(new_feat["geometry"]["coordinates"][0]) == 5

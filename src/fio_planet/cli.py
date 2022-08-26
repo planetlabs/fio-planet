@@ -14,24 +14,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from copy import copy
 import json
 
 import click
 from cligj import use_rs_opt
 from fiona.fio.helpers import obj_gen
+from shapely.geometry import mapping, shape
 
-from fio_planet.geomod import modulate
+from fio_planet.modulate import modulate
+from fio_planet.calculate import calculate
 
 
 @click.command(
     "geomod", short_help="Modulate the geometries of a stream of GeoJSON features."
 )
-@click.argument(
-    "pipeline",
-)
+@click.argument("pipeline")
 @use_rs_opt
-@click.pass_context
-def geomod(ctx, pipeline, use_rs):
+def geomod(pipeline, use_rs):
     """Modulate the geometries of a stream of GeoJSON features.
 
     Given a sequence of GeoJSON features (RS-delimited or not) on stdin
@@ -75,3 +75,43 @@ def geomod(ctx, pipeline, use_rs):
         if use_rs:
             click.echo("\x1e", nl=False)
         click.echo(json.dumps(new_feat))
+
+
+@click.command(
+    "x-geocalc",
+    short_help="Evaluate expressions involving GeoJSON features and their geometries.",
+)
+@click.argument("expression")
+@use_rs_opt
+def geomcalc(expression, use_rs):
+    """Evaluate expressions involving GeoJSON features and their geometries."""
+    stdin = click.get_text_stream("stdin")
+    for feat in obj_gen(stdin):
+        result = calculate(feat, expression)
+        if use_rs:
+            click.echo("\x1e", nl=False)
+        click.echo(json.dumps(result))
+
+
+@click.command(
+    "x-geodump",
+    short_help="Dump GeoJSON features, producing feature with single-part geometries.",
+)
+@use_rs_opt
+def geodump(use_rs):
+    """Dump GeoJSON features, producing feature with single-part geometries."""
+    stdin = click.get_text_stream("stdin")
+    for feat in obj_gen(stdin):
+        geom = shape(feat["geometry"])
+        if hasattr(geom, "geoms"):
+            for i, part in enumerate(geom.geoms, 1):
+                if use_rs:
+                    click.echo("\x1e", nl=False)
+                new_feat = copy(feat)
+                new_feat["id"] = f"{feat.get('id', '0')}:{i}"
+                new_feat["geometry"] = mapping(part)
+                click.echo(json.dumps(new_feat))
+        else:
+            if use_rs:
+                click.echo("\x1e", nl=False)
+            click.echo(json.dumps(feat))
