@@ -1,4 +1,4 @@
-# CLI tests
+# geomcalc.py: module supporting "fio coords".
 #
 # Copyright 2022 Planet Labs PBC
 #
@@ -14,18 +14,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from click.testing import CliRunner
+from shapely.geometry import shape
 
-from fiona.fio.main import main_group
+from . import snuggs
 
 
-def test_cli_count():
-    with open("tests/data/trio.seq") as seq:
-        data = seq.read()
-
-    runner = CliRunner()
-    result = runner.invoke(
-        main_group, ["geomod", "(centroid (buffer g 1.0))"], input=data
-    )
-    assert result.exit_code == 0
-    assert result.output.count('"type": "Point"') == 3
+def calculate(feat, expression):
+    geom = shape(feat["geometry"])
+    return snuggs.eval(expression, g=geom, f=feat)

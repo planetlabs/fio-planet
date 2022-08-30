@@ -3,9 +3,9 @@ requires = ["flit_core>=3.2"]
 build-backend = "flit_core.buildapi"
 
 [project]
-name = "fio-geomod"
-version = "1.0dev"
-description = "Modulate and modify geometries of GeoJSON features"
+name = "fio-planet"
+version = "1.0dev0"
+description = "Planet Labs plugins for the Fiona CLI"
 readme = "README.rst"
 authors = [{name = "Sean Gillies"}]
 maintainers = [
@@ -28,11 +28,13 @@ dependenencies = [
     "shapely",
 ]
 
-[project.optional-dependenencies]
+[project.optional-dependencies]
 test = ["pytest-cov"]
 
 [project.entry-points."fiona.fio_commands"]
-geomod = "fio_geomod.scripts.cli:geomod"
+geomod = "fio_planet.cli:geomod"
+geomcalc = "fio_planet.cli:geomcalc"
+geodump = "fio_planet.cli:geodump"
 
 [tool.flit.module]
-name = "fio_geomod"
+name = "fio_planet"
