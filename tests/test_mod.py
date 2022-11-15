@@ -16,12 +16,23 @@
 
 import json
 
+import pytest
 import shapely
+from shapely.geometry import LineString, MultiPoint, Point, mapping
 
+from fio_planet.calculate import calculate, vertex_count
 from fio_planet.modulate import modulate
 
 
-def test_modulate():
+def test_modulate_simple():
+    """Set a feature's geometry."""
+    feat = modulate({"type": "Feature"}, "(Point 0 0)")
+    assert "Feature" == feat["type"]
+    assert "Point" == feat["geometry"]["type"]
+    assert (0.0, 0.0) == feat["geometry"]["coordinates"]
+
+
+def test_modulate_complex():
     """Exercise a fairly complicated pipeline."""
     bufkwd = "resolution" if shapely.__version__.startswith("1") else "quadsegs"
 
@@ -35,3 +46,40 @@ def test_modulate():
     )
     assert new_feat["geometry"]["type"] == "Polygon"
     assert len(new_feat["geometry"]["coordinates"][0]) == 5
+
+
+@pytest.mark.parametrize(
+    "obj, count",
+    [
+        (Point(0, 0), 1),
+        (MultiPoint([(0, 0), (1, 1)]), 2),
+        (Point(0, 0).buffer(10.0).difference(Point(0, 0).buffer(1.0)), 130),
+    ],
+)
+def test_vertex_count(obj, count):
+    """Check vertex counting correctness."""
+    assert count == vertex_count(obj)
+
+
+@pytest.mark.parametrize(
+    "obj, count",
+    [
+        (Point(0, 0), 1),
+        (MultiPoint([(0, 0), (1, 1)]), 2),
+        (Point(0, 0).buffer(10.0).difference(Point(0, 0).buffer(1.0)), 130),
+    ],
+)
+def test_calculate_vertex_count(obj, count):
+    """Confirm vertex counting is in func_map."""
+    feat = {"type": "Feature", "properties": {}, "geometry": mapping(obj)}
+    assert count == calculate(feat, "(vertex_count g)")
+
+
+def test_calculate_builtin():
+    """Confirm builtin function evaluation."""
+    assert 42 == calculate(None, "(int '42')")
+
+
+def test_calculate_feature_attr():
+    """Confirm feature attr evaluation."""
+    assert "LOLWUT" == calculate("lolwut", "(upper f)")
