@@ -19,7 +19,7 @@ from copy import copy
 from shapely.geometry import mapping, shape
 
 # Import calculate to patch snuggs.
-from . import calculate
+from . import calculate  # noqa: F401
 from . import snuggs
 
 

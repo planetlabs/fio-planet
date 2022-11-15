@@ -1,0 +1,15 @@
+name: Lint
+on: [push, pull_request]
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - uses: actions/setup-python@v4
+      with:
+        python-version: 3.10
+    - name: Run black and flake8
+      run: |
+        pip install --upgrade black flake8
+        black src/fio_planet/ tests/
+        flake8 --ignore=E501,W503 src/fio_planet/ tests/

@@ -18,7 +18,7 @@ import json
 
 import pytest
 import shapely
-from shapely.geometry import LineString, MultiPoint, Point, mapping
+from shapely.geometry import MultiPoint, Point, mapping
 
 from fio_planet.calculate import calculate, vertex_count
 from fio_planet.modulate import modulate
