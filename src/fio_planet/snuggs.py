@@ -244,7 +244,14 @@ def processList(lst):
             args.append(item)
 
     func = processArg(lst[0])
-    return func(*args, **kwds)
+
+    # list and tuple are two builtins that take a single argument,
+    # whereas args is a list. If we get a KeyError, we will retry
+    # the function call, but without arg unpacking.
+    try:
+        return func(*args, **kwds)
+    except TypeError:
+        return func(args, **kwds)
 
 
 def handleLine(line):

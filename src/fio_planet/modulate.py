@@ -15,53 +15,15 @@
 # limitations under the License.
 
 from copy import copy
-from collections import UserDict
 
-import shapely
 from shapely.geometry import mapping, shape
 
+# Import calculate to patch snuggs.
+from . import calculate  # noqa: F401
 from . import snuggs
 
-# Patch snuggs' func_map, extending it with Python builtins, geometry
-# methods and attributes, and functions exported in the shapely module
-# (such as set_precision).
 
-
-def _explode(coords):
-    if hasattr(coords, "geoms"):
-        for part in coords.geoms:
-            yield from _explode(part)
-    elif hasattr(coords, "exterior"):
-        yield from _explode(coords.exterior)
-        for ring in coords.interiors:
-            yield from _explode(ring)
-    else:
-        for coord in coords.coords:
-            yield coord
-
-
-class FuncMapper(UserDict):
-    def __getitem__(self, key):
-        if key in self.data:
-            return self.data[key]
-        elif key in __builtins__:
-            return __builtins__[key]
-        elif key in dir(shapely):
-            return lambda g, *args, **kwargs: getattr(shapely, key)(g, *args, **kwargs)
-        else:
-            return (
-                lambda g, *args, **kwargs: getattr(g, key)(*args, **kwargs)
-                if callable(getattr(g, key))
-                else getattr(g, key)
-            )
-
-
-func_map = dict(vertex_count=lambda g: sum(1 for coord in _explode(g)))
-
-snuggs.func_map = FuncMapper(func_map)
-
-
-def modulate(feature, pipeline):
+def modulate(feat, pipeline):
     """Modulate the geometry of a feature by applying a pipeline of
     transformations.
 
@@ -77,7 +39,7 @@ def modulate(feature, pipeline):
 
     Parameters
     ----------
-    feature : Feature
+    feat : Feature
         A Fiona feature.
     pipeline : string
         Geometry operation pipeline such as
@@ -93,8 +55,11 @@ def modulate(feature, pipeline):
     # Set up the expression evaluation context. We might extend this
     # using something like timeit's "--setup" statements, allowing a
     # user to define clip geometries, other things.
-    geom = shape(feature["geometry"])
-    new_geom = snuggs.eval(pipeline, g=geom, f=feature)
-    new_feat = copy(feature)
+    try:
+        geom = shape(feat.get("geometry", None))
+    except (AttributeError, KeyError):
+        geom = None
+    new_geom = snuggs.eval(pipeline, g=geom, f=feat)
+    new_feat = copy(feat)
     new_feat["geometry"] = mapping(new_geom)
     return new_feat

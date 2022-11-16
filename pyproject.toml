@@ -23,9 +23,10 @@ keywords = [
 ]
 license = {text = "Apache License, Version 2.0"}
 requires-python = ">=3.7"
-dependenencies = [
+dependencies = [
+    "click",
     "fiona",
-    "shapely",
+    "shapely>=2.0b2",
 ]
 
 [project.optional-dependencies]
