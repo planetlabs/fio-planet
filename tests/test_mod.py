@@ -34,7 +34,7 @@ def test_modulate_simple():
 
 def test_modulate_complex():
     """Exercise a fairly complicated pipeline."""
-    bufkwd = "resolution" if shapely.__version__.startswith("1") else "quadsegs"
+    bufkwd = "resolution" if shapely.__version__.startswith("1") else "quad_segs"
 
     with open("tests/data/trio.geojson") as src:
         collection = json.loads(src.read())

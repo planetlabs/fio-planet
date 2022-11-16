@@ -26,7 +26,7 @@ requires-python = ">=3.7"
 dependencies = [
     "click",
     "fiona",
-    "shapely",
+    "shapely>=2.0b2",
 ]
 
 [project.optional-dependencies]
