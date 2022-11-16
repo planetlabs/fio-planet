@@ -21,7 +21,7 @@ import shapely
 from shapely.geometry import MultiPoint, Point, mapping
 
 from fio_planet.calculate import calculate, vertex_count
-from fio_planet.modulate import modulate
+from fio_planet.modulate import modulate, reduce
 
 
 def test_modulate_simple():
@@ -83,3 +83,32 @@ def test_calculate_builtin():
 def test_calculate_feature_attr():
     """Confirm feature attr evaluation."""
     assert "LOLWUT" == calculate("lolwut", "(upper f)")
+
+
+def test_reduce_len():
+    """Reduce can count the number of input features."""
+    with open("tests/data/trio.seq") as seq:
+        data = [json.loads(line) for line in seq.readlines()]
+
+    assert 3 == reduce("(len c)", data, raw=True)
+
+
+def test_reduce_union():
+    """Reduce yields one feature by default."""
+    with open("tests/data/trio.seq") as seq:
+        data = [json.loads(line) for line in seq.readlines()]
+
+    result = reduce("(unary_union c)", data)
+    assert "Feature" == result["type"]
+    assert "GeometryCollection" == result["geometry"]["type"]
+    assert 2 == len(result["geometry"]["geometries"])
+
+
+def test_reduce_union_area():
+    """Reduce can yield total area using raw output."""
+    with open("tests/data/trio.seq") as seq:
+        data = [json.loads(line) for line in seq.readlines()]
+
+    result = reduce("(area (unary_union c))", data, raw=True)
+    assert isinstance(result, float)
+    assert 0 < result < 1e-5

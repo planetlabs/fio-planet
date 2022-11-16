@@ -63,3 +63,13 @@ def modulate(feat, pipeline):
     new_feat = copy(feat)
     new_feat["geometry"] = mapping(new_geom)
     return new_feat
+
+
+def reduce(expression, features, raw=False):
+    """Reduce a collection of features to a single value."""
+    collection = (shape(feat["geometry"]) for feat in features)
+    result = snuggs.eval(expression, c=collection)
+    if raw:
+        return result
+    else:
+        return {"type": "Feature", "properties": {}, "geometry": mapping(result), "id": "0"}
