@@ -71,7 +71,7 @@ def geomod_cmd(pipeline, use_rs):
     """
     stdin = click.get_text_stream("stdin")
     for feat in obj_gen(stdin):
-        new_feat = modulate(feat, pipeline)
+        new_feat = modulate(pipeline, feat)
         if use_rs:
             click.echo("\x1e", nl=False)
         click.echo(json.dumps(new_feat))
@@ -127,7 +127,7 @@ def geomcalc_cmd(expression, use_rs):
     """Evaluate expressions involving GeoJSON features and their geometries."""
     stdin = click.get_text_stream("stdin")
     for feat in obj_gen(stdin):
-        result = calculate(feat, expression)
+        result = calculate(expression, feat)
         if use_rs:
             click.echo("\x1e", nl=False)
         click.echo(json.dumps(result))

@@ -69,9 +69,9 @@ func_map = dict(vertex_count=vertex_count)
 snuggs.func_map = FuncMapper(func_map)
 
 
-def calculate(feat, expression):
+def calculate(expression, feature):
     try:
-        geom = shape(feat.get("geometry", None))
+        geom = shape(feature.get("geometry", None))
     except (AttributeError, KeyError):
         geom = None
-    return snuggs.eval(expression, g=geom, f=feat)
+    return snuggs.eval(expression, g=geom, f=feature)
