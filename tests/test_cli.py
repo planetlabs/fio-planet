@@ -19,7 +19,8 @@ from click.testing import CliRunner
 from fiona.fio.main import main_group
 
 
-def test_cli_count():
+def test_geomod_count():
+    """fio-geomod prints correct number of results."""
     with open("tests/data/trio.seq") as seq:
         data = seq.read()
 
@@ -29,3 +30,29 @@ def test_cli_count():
     )
     assert result.exit_code == 0
     assert result.output.count('"type": "Point"') == 3
+
+
+def test_reduce_area():
+    """Reduce features to their (raw) area."""
+    with open("tests/data/trio.seq") as seq:
+        data = seq.read()
+
+    runner = CliRunner()
+    result = runner.invoke(
+        main_group, ["reduce", "--raw", "(area (unary_union c))"], input=data
+    )
+    assert result.exit_code == 0
+    assert 0 < float(result.output) < 1e-5
+
+
+def test_reduce_union():
+    """Reduce features to one single feature."""
+    with open("tests/data/trio.seq") as seq:
+        data = seq.read()
+
+    runner = CliRunner()
+    result = runner.invoke(main_group, ["reduce", "(unary_union c)"], input=data)
+    assert result.exit_code == 0
+    assert result.output.count('"type": "Polygon"') == 1
+    assert result.output.count('"type": "LineString"') == 1
+    assert result.output.count('"type": "GeometryCollection"') == 1

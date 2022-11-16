@@ -22,7 +22,7 @@ from cligj import use_rs_opt
 from fiona.fio.helpers import obj_gen
 from shapely.geometry import mapping, shape
 
-from fio_planet.modulate import modulate
+from fio_planet.modulate import modulate, reduce
 from fio_planet.calculate import calculate
 
 
@@ -31,7 +31,7 @@ from fio_planet.calculate import calculate
 )
 @click.argument("pipeline")
 @use_rs_opt
-def geomod(pipeline, use_rs):
+def geomod_cmd(pipeline, use_rs):
     """Modulate the geometries of a stream of GeoJSON features.
 
     Given a sequence of GeoJSON features (RS-delimited or not) on stdin
@@ -71,34 +71,74 @@ def geomod(pipeline, use_rs):
     """
     stdin = click.get_text_stream("stdin")
     for feat in obj_gen(stdin):
-        new_feat = modulate(feat, pipeline)
+        new_feat = modulate(pipeline, feat)
         if use_rs:
             click.echo("\x1e", nl=False)
         click.echo(json.dumps(new_feat))
 
 
+@click.command("reduce", short_help="Reduce a stream of GeoJSON features to one value.")
+@click.argument("pipeline")
+@click.option(
+    "--raw",
+    is_flag=True,
+    default=False,
+    help="Print raw result, do not wrap in a GeoJSON Feature.",
+)
+@use_rs_opt
+def reduce_cmd(pipeline, raw, use_rs):
+    """Reduce a stream of GeoJSON features to one value.
+
+    Given a sequence of GeoJSON features (RS-delimited or not) on stdin
+    this prints a single value using a provided transformation pipeline.
+
+    The pipeline is a string which, when evaluated by fio-reduce,
+    produces a new JSON object. The pipeline consists of expressions
+    in the form of parenthesized lists, which may contain other
+    expressions.  The first item in a list is the name of a Shapely
+    geometry attribute or method. The second is the name of a Shapely
+    geometry object or an expression that evaluates to a geometry
+    object.  The remaining list items are the positional and keyword
+    arguments for the named method. The name of the set of input
+    features in the context of these expressions is "c".
+
+    For example,
+
+        '(unary_union c)'
+
+    dissolves the geometries of input features.
+
+    """
+    stdin = click.get_text_stream("stdin")
+    features = (feat for feat in obj_gen(stdin))
+    result = reduce(pipeline, features, raw=raw)
+    if use_rs:
+        click.echo("\x1e", nl=False)
+    click.echo(json.dumps(result))
+
+
 @click.command(
-    "x-geocalc",
+    "geocalc",
     short_help="Evaluate expressions involving GeoJSON features and their geometries.",
 )
 @click.argument("expression")
 @use_rs_opt
-def geomcalc(expression, use_rs):
+def geomcalc_cmd(expression, use_rs):
     """Evaluate expressions involving GeoJSON features and their geometries."""
     stdin = click.get_text_stream("stdin")
     for feat in obj_gen(stdin):
-        result = calculate(feat, expression)
+        result = calculate(expression, feat)
         if use_rs:
             click.echo("\x1e", nl=False)
         click.echo(json.dumps(result))
 
 
 @click.command(
-    "x-geodump",
+    "geodump",
     short_help="Dump GeoJSON features, producing feature with single-part geometries.",
 )
 @use_rs_opt
-def geodump(use_rs):
+def geodump_cmd(use_rs):
     """Dump GeoJSON features, producing feature with single-part geometries."""
     stdin = click.get_text_stream("stdin")
     for feat in obj_gen(stdin):

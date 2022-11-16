@@ -21,12 +21,12 @@ import shapely
 from shapely.geometry import MultiPoint, Point, mapping
 
 from fio_planet.calculate import calculate, vertex_count
-from fio_planet.modulate import modulate
+from fio_planet.modulate import modulate, reduce
 
 
 def test_modulate_simple():
     """Set a feature's geometry."""
-    feat = modulate({"type": "Feature"}, "(Point 0 0)")
+    feat = modulate("(Point 0 0)", {"type": "Feature"})
     assert "Feature" == feat["type"]
     assert "Point" == feat["geometry"]["type"]
     assert (0.0, 0.0) == feat["geometry"]["coordinates"]
@@ -41,8 +41,8 @@ def test_modulate_complex():
 
     feat = collection["features"][0]
     new_feat = modulate(
-        feat,
         f"(simplify (buffer g (* 0.1 2) :{bufkwd} (- 4 3)) 0.001 :preserve_topology false)",
+        feat,
     )
     assert new_feat["geometry"]["type"] == "Polygon"
     assert len(new_feat["geometry"]["coordinates"][0]) == 5
@@ -72,14 +72,43 @@ def test_vertex_count(obj, count):
 def test_calculate_vertex_count(obj, count):
     """Confirm vertex counting is in func_map."""
     feat = {"type": "Feature", "properties": {}, "geometry": mapping(obj)}
-    assert count == calculate(feat, "(vertex_count g)")
+    assert count == calculate("(vertex_count g)", feat)
 
 
 def test_calculate_builtin():
     """Confirm builtin function evaluation."""
-    assert 42 == calculate(None, "(int '42')")
+    assert 42 == calculate("(int '42')", None)
 
 
 def test_calculate_feature_attr():
     """Confirm feature attr evaluation."""
-    assert "LOLWUT" == calculate("lolwut", "(upper f)")
+    assert "LOLWUT" == calculate("(upper f)", "lolwut")
+
+
+def test_reduce_len():
+    """Reduce can count the number of input features."""
+    with open("tests/data/trio.seq") as seq:
+        data = [json.loads(line) for line in seq.readlines()]
+
+    assert 3 == reduce("(len c)", data, raw=True)
+
+
+def test_reduce_union():
+    """Reduce yields one feature by default."""
+    with open("tests/data/trio.seq") as seq:
+        data = [json.loads(line) for line in seq.readlines()]
+
+    result = reduce("(unary_union c)", data)
+    assert "Feature" == result["type"]
+    assert "GeometryCollection" == result["geometry"]["type"]
+    assert 2 == len(result["geometry"]["geometries"])
+
+
+def test_reduce_union_area():
+    """Reduce can yield total area using raw output."""
+    with open("tests/data/trio.seq") as seq:
+        data = [json.loads(line) for line in seq.readlines()]
+
+    result = reduce("(area (unary_union c))", data, raw=True)
+    assert isinstance(result, float)
+    assert 0 < result < 1e-5

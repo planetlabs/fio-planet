@@ -23,7 +23,7 @@ from . import calculate  # noqa: F401
 from . import snuggs
 
 
-def modulate(feat, pipeline):
+def modulate(pipeline, feature):
     """Modulate the geometry of a feature by applying a pipeline of
     transformations.
 
@@ -39,11 +39,11 @@ def modulate(feat, pipeline):
 
     Parameters
     ----------
-    feat : Feature
-        A Fiona feature.
     pipeline : string
         Geometry operation pipeline such as
         "(exterior (buffer g 2.0))".
+    feature : Feature
+        A Fiona feature object.
 
     Returns
     -------
@@ -56,10 +56,46 @@ def modulate(feat, pipeline):
     # using something like timeit's "--setup" statements, allowing a
     # user to define clip geometries, other things.
     try:
-        geom = shape(feat.get("geometry", None))
+        geom = shape(feature.get("geometry", None))
     except (AttributeError, KeyError):
         geom = None
-    new_geom = snuggs.eval(pipeline, g=geom, f=feat)
-    new_feat = copy(feat)
+    new_geom = snuggs.eval(pipeline, g=geom, f=feature)
+    new_feat = copy(feature)
     new_feat["geometry"] = mapping(new_geom)
     return new_feat
+
+
+def reduce(pipeline, features, raw=False):
+    """Reduce a collection of features to a single value by applying a
+    pipeline of transformations.
+
+    The pipeline is a string which, when evaluated by snuggs, produces
+    a new value. The name of the input feature collection in the
+    context of the pipeline is "c".
+
+    By default, the new value will become the geometry property of a
+    new feature object. If raw is True, the new value will be returned
+    as-is.
+
+    Parameters
+    ----------
+    pipeline : string
+        Geometry operation pipeline such as "(unary_union c)".
+    features : iterable
+        A sequence of Fiona feature objects.
+    raw : bool (optional, default: False)
+        If True, results will not be wrapped in a Feature.
+
+    Returns
+    -------
+    Feature or obj
+        A new Fiona feature object (the default) carrying the reduced
+        value as its geometry, or the reduced value itself.
+
+    """
+    collection = (shape(feat["geometry"]) for feat in features)
+    result = snuggs.eval(pipeline, c=collection)
+    if raw:
+        return result
+    else:
+        return {"type": "Feature", "properties": {}, "geometry": mapping(result), "id": "0"}
