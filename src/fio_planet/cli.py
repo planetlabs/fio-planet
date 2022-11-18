@@ -20,7 +20,6 @@ import json
 import click
 from cligj import use_rs_opt
 from fiona.fio.helpers import obj_gen
-from shapely.geometry import mapping, shape
 
 from .features import map_feature, reduce_features
 
