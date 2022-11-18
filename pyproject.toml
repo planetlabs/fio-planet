@@ -33,10 +33,8 @@ dependencies = [
 test = ["pytest-cov"]
 
 [project.entry-points."fiona.fio_commands"]
-geomod = "fio_planet.cli:geomod_cmd"
-geomcalc = "fio_planet.cli:geomcalc_cmd"
-geodump = "fio_planet.cli:geodump_cmd"
 reduce = "fio_planet.cli:reduce_cmd"
+map = "fio_planet.cli:map_cmd"
 
 [tool.flit.module]
 name = "fio_planet"

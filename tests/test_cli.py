@@ -19,14 +19,17 @@ from click.testing import CliRunner
 from fiona.fio.main import main_group
 
 
-def test_geomod_count():
-    """fio-geomod prints correct number of results."""
+def test_map_count():
+    """fio-map prints correct number of results."""
     with open("tests/data/trio.seq") as seq:
         data = seq.read()
 
     runner = CliRunner()
     result = runner.invoke(
-        main_group, ["geomod", "(centroid (buffer g 1.0))"], input=data
+        main_group,
+        ["map", "(centroid (buffer g 1.0))"],
+        input=data,
+        catch_exceptions=False,
     )
     assert result.exit_code == 0
     assert result.output.count('"type": "Point"') == 3

@@ -20,16 +20,18 @@ import pytest
 import shapely
 from shapely.geometry import MultiPoint, Point, mapping
 
-from fio_planet.calculate import calculate, vertex_count
-from fio_planet.modulate import modulate, reduce
+from fio_planet.features import map_feature, reduce_features, vertex_count
 
 
 def test_modulate_simple():
     """Set a feature's geometry."""
-    feat = modulate("(Point 0 0)", {"type": "Feature"})
-    assert "Feature" == feat["type"]
-    assert "Point" == feat["geometry"]["type"]
-    assert (0.0, 0.0) == feat["geometry"]["coordinates"]
+    # map_feature() is a generator. list() materializes the values.
+    feat = list(map_feature("(Point 0 0)", {"type": "Feature"}))
+    assert len(feat) == 1
+
+    feat = feat[0]
+    assert "Point" == feat["type"]
+    assert (0.0, 0.0) == feat["coordinates"]
 
 
 def test_modulate_complex():
@@ -40,12 +42,17 @@ def test_modulate_complex():
         collection = json.loads(src.read())
 
     feat = collection["features"][0]
-    new_feat = modulate(
-        f"(simplify (buffer g (* 0.1 2) :{bufkwd} (- 4 3)) 0.001 :preserve_topology false)",
-        feat,
+    results = list(
+        map_feature(
+            f"(simplify (buffer g (* 0.1 2) :{bufkwd} (- 4 3)) 0.001 :preserve_topology false)",
+            feat,
+        )
     )
-    assert new_feat["geometry"]["type"] == "Polygon"
-    assert len(new_feat["geometry"]["coordinates"][0]) == 5
+    assert 1 == len(results)
+
+    geom = results[0]
+    assert geom["type"] == "Polygon"
+    assert len(geom["coordinates"][0]) == 5
 
 
 @pytest.mark.parametrize(
@@ -72,17 +79,17 @@ def test_vertex_count(obj, count):
 def test_calculate_vertex_count(obj, count):
     """Confirm vertex counting is in func_map."""
     feat = {"type": "Feature", "properties": {}, "geometry": mapping(obj)}
-    assert count == calculate("(vertex_count g)", feat)
+    assert count == list(map_feature("(vertex_count g)", feat))[0]
 
 
 def test_calculate_builtin():
     """Confirm builtin function evaluation."""
-    assert 42 == calculate("(int '42')", None)
+    assert 42 == list(map_feature("(int '42')", None))[0]
 
 
 def test_calculate_feature_attr():
     """Confirm feature attr evaluation."""
-    assert "LOLWUT" == calculate("(upper f)", "lolwut")
+    assert "LOLWUT" == list(map_feature("(upper f)", "lolwut"))[0]
 
 
 def test_reduce_len():
@@ -90,7 +97,8 @@ def test_reduce_len():
     with open("tests/data/trio.seq") as seq:
         data = [json.loads(line) for line in seq.readlines()]
 
-    assert 3 == reduce("(len c)", data, raw=True)
+    # reduce() is a generator. list() materializes the values.
+    assert 3 == list(reduce_features("(len c)", data))[0]
 
 
 def test_reduce_union():
@@ -98,10 +106,13 @@ def test_reduce_union():
     with open("tests/data/trio.seq") as seq:
         data = [json.loads(line) for line in seq.readlines()]
 
-    result = reduce("(unary_union c)", data)
-    assert "Feature" == result["type"]
-    assert "GeometryCollection" == result["geometry"]["type"]
-    assert 2 == len(result["geometry"]["geometries"])
+    # reduce() is a generator. list() materializes the values.
+    result = list(reduce_features("(unary_union c)", data))
+    assert len(result) == 1
+
+    val = result[0]
+    assert "GeometryCollection" == val["type"]
+    assert 2 == len(val["geometries"])
 
 
 def test_reduce_union_area():
@@ -109,6 +120,33 @@ def test_reduce_union_area():
     with open("tests/data/trio.seq") as seq:
         data = [json.loads(line) for line in seq.readlines()]
 
-    result = reduce("(area (unary_union c))", data, raw=True)
-    assert isinstance(result, float)
-    assert 0 < result < 1e-5
+    # reduce() is a generator.
+    result = list(reduce_features("(area (unary_union c))", data))
+    assert len(result) == 1
+
+    val = result[0]
+    assert isinstance(val, float)
+    assert 0 < val < 1e-5
+
+
+def test_reduce_union_geom_type():
+    """Reduce and print geom_type using raw output."""
+    with open("tests/data/trio.seq") as seq:
+        data = [json.loads(line) for line in seq.readlines()]
+
+    # reduce() is a generator.
+    result = list(reduce_features("(geom_type (unary_union c))", data))
+    assert len(result) == 1
+    assert "GeometryCollection" == result[0]
+
+
+@pytest.mark.parametrize(
+    "obj, count",
+    [
+        (MultiPoint([(0, 0), (1, 1)]), 2),
+    ],
+)
+def test_dump_eval(obj, count):
+    feature = {"type": "Feature", "properties": {}, "geometry": mapping(obj)}
+    result = map_feature("(identity g)", feature, dump_parts=True)
+    assert len(list(result)) == count

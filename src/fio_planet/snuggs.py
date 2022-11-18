@@ -42,10 +42,8 @@
 
 from collections import OrderedDict
 import functools
-import itertools
 import operator
 import re
-import sys
 
 from pyparsing import (
     Keyword,
@@ -131,7 +129,7 @@ op_map = {
 func_map = {}
 
 higher_func_map = {
-    "map": map if sys.version_info[0] >= 3 else itertools.imap,
+    "map": map,
     "partial": functools.partial,
 }
 
