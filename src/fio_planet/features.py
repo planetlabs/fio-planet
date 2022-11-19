@@ -15,6 +15,7 @@
 # limitations under the License.
 
 from collections import UserDict
+import itertools
 from typing import Generator, Iterable, Mapping
 
 import shapely
@@ -45,6 +46,7 @@ def vertex_count(obj) -> int:
     else:
         return len(shp.coords)
 
+
 # Patch snuggs' func_map, extending it with Python builtins, geometry
 # methods and attributes, and functions exported in the shapely module
 # (such as set_precision).
@@ -66,7 +68,18 @@ class FuncMapper(UserDict):
             )
 
 
-snuggs.func_map = FuncMapper(vertex_count=vertex_count, identity=lambda x: x)
+def dump(shp):
+    if hasattr(shp, "geoms"):
+        parts = shp.geoms
+    else:
+        parts = [shp]
+    for part in parts:
+        yield part
+
+
+snuggs.func_map = FuncMapper(
+    vertex_count=vertex_count, identity=lambda x: x, repeat=itertools.repeat, dump=dump
+)
 
 
 def map_feature(expression: str, feature: dict, dump_parts: bool = False) -> Generator:

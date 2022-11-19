@@ -35,7 +35,12 @@ from .features import map_feature, reduce_features
     default=False,
     help="Print raw result, do not wrap in a GeoJSON Feature.",
 )
-@click.option("--dump-parts", is_flag=True, default=False, help="Dump parts of geometries to create new inputs before evaluating pipeline.")
+@click.option(
+    "--dump-parts",
+    is_flag=True,
+    default=False,
+    help="Dump parts of geometries to create new inputs before evaluating pipeline.",
+)
 @use_rs_opt
 def map_cmd(pipeline, raw, dump_parts, use_rs):
     """Map a pipeline expression over GeoJSON features, producing new
@@ -134,4 +139,8 @@ def reduce_cmd(pipeline, raw, use_rs):
         if raw:
             click.echo(json.dumps(result))
         else:
-            click.echo(json.dumps({"type": "Feature", "properties": {}, "geometry": result, "id": "0"}))
+            click.echo(
+                json.dumps(
+                    {"type": "Feature", "properties": {}, "geometry": result, "id": "0"}
+                )
+            )
