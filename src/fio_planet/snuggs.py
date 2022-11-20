@@ -126,11 +126,22 @@ op_map = {
     ">": operator.gt,
 }
 
+
+def compose(f, g):
+    """compose(f, g)(x) = f(g(x))."""
+    return lambda x, *args, **kwds: f(g(x))
+
+
 func_map = {}
 
 higher_func_map = {
+    "compose": compose,
     "map": map,
     "partial": functools.partial,
+    "attrgetter": operator.attrgetter,
+    "methodcaller": operator.methodcaller,
+    "itemgetter": operator.itemgetter,
+    "reduce": functools.reduce,
 }
 
 nil = Keyword("null").set_parse_action(lambda s, l, t: None)
@@ -169,7 +180,7 @@ def resolve_func(source, loc, toks):
 # variables.
 func = Regex(r"(?<=\()[{}]+".format(identchars)).set_parse_action(resolve_func)
 
-higher_func = oneOf("map partial").set_parse_action(
+higher_func = oneOf(" ".join(higher_func_map.keys())).set_parse_action(
     lambda s, l, t: higher_func_map[t[0]]
 )
 
@@ -208,7 +219,7 @@ func_expr << Group(
 higher_func_expr << Group(
     lparen
     + higher_func
-    + (nil | higher_func_expr | op | func)
+    + (nil | higher_func_expr | op | func | OneOrMore(operand))
     + ZeroOrMore(operand)
     + rparen
 )

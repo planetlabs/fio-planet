@@ -77,8 +77,19 @@ def dump(shp):
         yield part
 
 
+def identity(obj):
+    return obj
+
+
 snuggs.func_map = FuncMapper(
-    vertex_count=vertex_count, identity=lambda x: x, repeat=itertools.repeat, dump=dump
+    dump=dump,
+    identity=identity,
+    vertex_count=vertex_count,
+    **{
+        k: getattr(itertools, k)
+        for k in dir(itertools)
+        if not k.startswith("_") and callable(getattr(itertools, k))
+    }
 )
 
 

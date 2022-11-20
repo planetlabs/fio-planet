@@ -36,13 +36,16 @@ from .features import map_feature, reduce_features
     help="Print raw result, do not wrap in a GeoJSON Feature.",
 )
 @click.option(
+    "--no-input", is_flag=True, default=False, help="Do not read input from stream."
+)
+@click.option(
     "--dump-parts",
     is_flag=True,
     default=False,
     help="Dump parts of geometries to create new inputs before evaluating pipeline.",
 )
 @use_rs_opt
-def map_cmd(pipeline, raw, dump_parts, use_rs):
+def map_cmd(pipeline, raw, no_input, dump_parts, use_rs):
     """Map a pipeline expression over GeoJSON features, producing new
     GeoJSON features or, optionally, raw JSON values.
 
@@ -84,8 +87,13 @@ def map_cmd(pipeline, raw, dump_parts, use_rs):
         '(buffer g (/ (area g) 100.0))'
 
     """
-    stdin = click.get_text_stream("stdin")
-    for feat in obj_gen(stdin):
+    if no_input:
+        features = [None]
+    else:
+        stdin = click.get_text_stream("stdin")
+        features = obj_gen(stdin)
+
+    for feat in features:
         for i, value in enumerate(map_feature(pipeline, feat, dump_parts=dump_parts)):
             if use_rs:
                 click.echo("\x1e", nl=False)
