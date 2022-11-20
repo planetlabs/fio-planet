@@ -106,6 +106,48 @@ def map_cmd(pipeline, raw, no_input, dump_parts, use_rs):
                 click.echo(json.dumps(new_feat))
 
 
+@click.command(
+    "filter",
+    short_help="Evaluate pipeline expressions to filter GeoJSON features.",
+)
+@click.argument("pipeline")
+@use_rs_opt
+def filter_cmd(pipeline, use_rs):
+    """Evaluate pipeline expressions to filter GeoJSON features.
+
+    The pipeline is a string which, when evaluated, gives
+    a new value for each input feature. If the value evaluates to True, the
+    feature passes through the filter. Otherwise the feature does not pass.
+
+    The pipeline consists of expressions in the
+    form of parenthesized lists which may contain other expressions.
+    The first item in a list is the name of a function or method, or an
+    expression that evaluates to a function. The second item is the
+    function's first argument or the object to which the method is
+    bound. The remaining list items are the positional and keyword
+    arguments for the named function or method. The names of the input
+    feature and its geometry in the context of these expressions are
+    "f" and "g".
+
+    For example, this pipeline expression
+
+        '(< (distance g (Point 4 43)) 1)'
+
+    lets through all features that are less than one unit from the
+    given point and filters out all other features.
+
+    """
+    stdin = click.get_text_stream("stdin")
+    features = obj_gen(stdin)
+
+    for feat in features:
+        for value in map_feature(pipeline, feat):
+            if value:
+                if use_rs:
+                    click.echo("\x1e", nl=False)
+                click.echo(json.dumps(feat))
+
+
 @click.command("reduce", short_help="Reduce a stream of GeoJSON features to one value.")
 @click.argument("pipeline")
 @click.option(

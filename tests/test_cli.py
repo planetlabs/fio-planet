@@ -59,3 +59,14 @@ def test_reduce_union():
     assert result.output.count('"type": "Polygon"') == 1
     assert result.output.count('"type": "LineString"') == 1
     assert result.output.count('"type": "GeometryCollection"') == 1
+
+
+def test_filter():
+    """Filter features by distance."""
+    with open("tests/data/trio.seq") as seq:
+        data = seq.read()
+
+    runner = CliRunner()
+    result = runner.invoke(main_group, ["filter", "(< (distance g (Point 4 43)) 0.625)"], input=data)
+    assert result.exit_code == 0
+    assert result.output.count('"type": "Polygon"') == 1
