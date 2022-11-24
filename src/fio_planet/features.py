@@ -14,6 +14,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+"""Operations on GeoJSON feature and geometry objects."""
+
 from collections import UserDict
 import itertools
 from typing import Generator, Iterable, Mapping
@@ -26,10 +28,13 @@ from . import snuggs
 
 
 def vertex_count(obj) -> int:
-    """ "Count the vertices of a GeoJSON-like geometry object.
+    """Count the vertices of a GeoJSON-like geometry object.
+
     Parameters
     ----------
-    obj: a GeoJSON-like mapping or an object that provides __geo_interface__
+    obj: object
+        A GeoJSON-like mapping or an object that provides
+        __geo_interface__.
 
     Returns
     -------
@@ -53,7 +58,10 @@ def vertex_count(obj) -> int:
 
 
 class FuncMapper(UserDict):
+    """Resolves functions from names in pipeline expressions."""
+
     def __getitem__(self, key):
+        """Get a function by its name."""
         if key in self.data:
             return self.data[key]
         elif key in __builtins__:
@@ -68,7 +76,23 @@ class FuncMapper(UserDict):
             )
 
 
-def dump(shp):
+def dump(shp) -> Generator:
+    """Get the individual parts of a geometry object.
+
+    If the given geometry object has a single part, e.g., is an
+    instance of LineString, Point, or Polygon, this function yields a
+    single result, the geometry itself.
+
+    Parameters
+    ----------
+    shp : object
+        A shapely geometry object.
+
+    Yields
+    ------
+    A shapely geometry object.
+
+    """
     if hasattr(shp, "geoms"):
         parts = shp.geoms
     else:
@@ -78,6 +102,21 @@ def dump(shp):
 
 
 def identity(obj):
+    """Get back the given argument.
+
+    To help in making expression lists, where the first item must be a
+    callable object.
+
+    Parameters
+    ----------
+    obj : objeect
+
+
+    Returns
+    -------
+    obj
+
+    """
     return obj
 
 
@@ -129,8 +168,7 @@ def map_feature(expression: str, feature: dict, dump_parts: bool = False) -> Gen
 
 
 def reduce_features(pipeline: str, features: Iterable[Mapping]) -> Generator:
-    """Reduce a collection of features to a single value by applying a
-    pipeline of transformations.
+    """Reduce a collection of features to a single value.
 
     The pipeline is a string which, when evaluated by snuggs, produces
     a new value. The name of the input feature collection in the
@@ -138,7 +176,7 @@ def reduce_features(pipeline: str, features: Iterable[Mapping]) -> Generator:
 
     Parameters
     ----------
-    pipeline : string
+    pipeline : str
         Geometry operation pipeline such as "(unary_union c)".
     features : iterable
         A sequence of Fiona feature objects.

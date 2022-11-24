@@ -128,7 +128,11 @@ op_map = {
 
 
 def compose(f, g):
-    """compose(f, g)(x) = f(g(x))."""
+    """Compose two functions.
+
+    compose(f, g)(x) = f(g(x)).
+
+    """
     return lambda x, *args, **kwds: f(g(x))
 
 

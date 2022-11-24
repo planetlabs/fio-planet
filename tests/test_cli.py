@@ -67,6 +67,8 @@ def test_filter():
         data = seq.read()
 
     runner = CliRunner()
-    result = runner.invoke(main_group, ["filter", "(< (distance g (Point 4 43)) 0.625)"], input=data)
+    result = runner.invoke(
+        main_group, ["filter", "(< (distance g (Point 4 43)) 0.625)"], input=data
+    )
     assert result.exit_code == 0
     assert result.output.count('"type": "Polygon"') == 1

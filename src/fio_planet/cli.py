@@ -14,6 +14,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+"""Fiona CLI command plugins."""
+
 from copy import copy
 import json
 
@@ -46,8 +48,7 @@ from .features import map_feature, reduce_features
 )
 @use_rs_opt
 def map_cmd(pipeline, raw, no_input, dump_parts, use_rs):
-    """Map a pipeline expression over GeoJSON features, producing new
-    GeoJSON features or, optionally, raw JSON values.
+    """Map a pipeline expression over GeoJSON features.
 
     Given a sequence of GeoJSON features (RS-delimited or not) on stdin
     this prints copies with geometries that are transformed using a
