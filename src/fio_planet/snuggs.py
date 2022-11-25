@@ -148,9 +148,9 @@ higher_func_map = {
     "reduce": functools.reduce,
 }
 
-nil = Keyword("null").set_parse_action(lambda s, l, t: None)
-true = Keyword("true").set_parse_action(lambda s, l, t: True)
-false = Keyword("false").set_parse_action(lambda s, l, t: False)
+nil = Keyword("null").set_parse_action(lambda source, loc, toks: None)
+true = Keyword("true").set_parse_action(lambda source, loc, toks: True)
+false = Keyword("false").set_parse_action(lambda source, loc, toks: False)
 
 
 def resolve_var(source, loc, toks):
@@ -167,7 +167,9 @@ var = pyparsing_common.identifier.set_parse_action(resolve_var)
 string = QuotedString("'") | QuotedString('"')
 lparen = Literal("(").suppress()
 rparen = Literal(")").suppress()
-op = oneOf(" ".join(op_map.keys())).set_parse_action(lambda s, l, t: op_map[t[0]])
+op = oneOf(" ".join(op_map.keys())).set_parse_action(
+    lambda source, loc, toks: op_map[toks[0]]
+)
 
 
 def resolve_func(source, loc, toks):
@@ -185,7 +187,7 @@ def resolve_func(source, loc, toks):
 func = Regex(r"(?<=\()[{}]+".format(identchars)).set_parse_action(resolve_func)
 
 higher_func = oneOf(" ".join(higher_func_map.keys())).set_parse_action(
-    lambda s, l, t: higher_func_map[t[0]]
+    lambda source, loc, toks: higher_func_map[toks[0]]
 )
 
 func_expr = Forward()
@@ -199,7 +201,7 @@ class KeywordArg:
 
 
 kwarg = Regex(r":[{}]+".format(identchars)).set_parse_action(
-    lambda s, l, t: KeywordArg(t[0][1:])
+    lambda source, loc, toks: KeywordArg(toks[0][1:])
 )
 
 operand = (

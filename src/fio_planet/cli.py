@@ -27,8 +27,7 @@ from .features import map_feature, reduce_features
 
 
 @click.command(
-    "map",
-    short_help="Map a pipeline expression over GeoJSON features.",
+    "map", short_help="Map a pipeline expression over GeoJSON features.",
 )
 @click.argument("pipeline")
 @click.option(
@@ -108,8 +107,7 @@ def map_cmd(pipeline, raw, no_input, dump_parts, use_rs):
 
 
 @click.command(
-    "filter",
-    short_help="Evaluate pipeline expressions to filter GeoJSON features.",
+    "filter", short_help="Evaluate pipeline expressions to filter GeoJSON features.",
 )
 @click.argument("pipeline")
 @use_rs_opt
