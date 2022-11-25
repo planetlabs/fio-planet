@@ -16,7 +16,7 @@ Command line interface
 fio-planet
 ==========
 
-fio-planet adds ``filter``, ``map``, and ```reduce`` commands to Fiona's
+fio-planet adds ``filter``, ``map``, and ``reduce`` commands to Fiona's
 ``fio`` program. fio-filter evaluates an expression for each feature in
 a stream of GeoJSON features, passing those for which the expression is true.
 fio-map maps an expression over a stream of GeoJSON features, producing
