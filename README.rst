@@ -6,7 +6,7 @@ fio-planet is a package of Fiona CLI plugins from Planet Labs.
 Installation
 ------------
 
-.. code-block:: console
+.. code-block::
 
    $ python -m pip install fio-planet@https://github.com/planetlabs/fio-planet.git
 
@@ -82,14 +82,14 @@ expressions and writes a copy of the feature, containing the modified geometry,
 to stdout. For example, polygonal features can be "cleaned" by using
 a ``(buffer g 0)`` pipeline.
 
-.. code-block:: console
+.. code-block::
 
     $ fio cat zip+https://s3.amazonaws.com/fiona-testing/coutwildrnp.zip \
     | fio map '(buffer g 0)'
 
 Or we can replace polygons with their centroids using ``centroid``.
 
-.. code-block:: console
+.. code-block::
 
     $ fio cat zip+https://s3.amazonaws.com/fiona-testing/coutwildrnp.zip \
     | fio map '(centroid g)'
@@ -97,7 +97,7 @@ Or we can replace polygons with their centroids using ``centroid``.
 Or we can dilate and erode polyons and find those centroids, and combine with
 the program ``jq`` to weed out unwanted features and properties.
 
-.. code-block:: console
+.. code-block::
 
     fio cat zip+https://s3.amazonaws.com/fiona-testing/coutwildrnp.zip \
       | jq -c 'select(.properties.STATE == "CO")' \
