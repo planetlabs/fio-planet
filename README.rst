@@ -1,20 +1,17 @@
 fio-planet
 ==========
 
-fio-planet is a package of Fiona CLI plugins from Planet Labs.
+A package of Fiona CLI plugins from Planet Labs.
 
 Installation
 ------------
 
 .. code-block::
 
-   $ python -m pip install fio-planet@https://github.com/planetlabs/fio-planet.git
+   python -m pip install fio-planet@https://github.com/planetlabs/fio-planet.git
 
-Command line interface
-----------------------
-
-fio-planet
-==========
+Usage
+-----
 
 fio-planet adds ``filter``, ``map``, and ``reduce`` commands to Fiona's
 ``fio`` program. fio-filter evaluates an expression for each feature in
@@ -148,3 +145,40 @@ the program ``jq`` to weed out unwanted features and properties.
     }
     ...
 
+Support
+-------
+
+For usage help, please use the project discussion forum or email
+developers@planet.com.
+
+If you think you've found a bug (we believe you!), please use the project issue
+tracker.
+
+Roadmap
+-------
+
+Version 1.0 adds ``filter``, ``map``, and ``reduce`` to Fiona's ``fio`` CLI.
+
+Contributing
+------------
+
+Before 1.0, the project is looking for feedback on the new commands more than
+it is looking for new commands.
+
+We use ``tox`` to run the tests.
+
+.. code-block:: console
+
+    tox
+
+Authors and acknowledgment
+--------------------------
+
+Contributors to this project are
+
+* Sean Gillies <sean.gillies@planet.com>
+
+License
+-------
+
+Apache License, Version 2.0.
