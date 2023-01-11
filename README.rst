@@ -6,7 +6,7 @@ A package of Fiona CLI plugins from Planet Labs.
 Installation
 ------------
 
-.. code-block::
+.. code-block:: console
 
    python -m pip install fio-planet@https://github.com/planetlabs/fio-planet.git
 
@@ -79,7 +79,7 @@ through the filter. Otherwise the feature does not pass.
 
 For example, this pipeline expression
 
-.. code-block::
+.. code-block:: console
 
     $ fio cat zip+https://s3.amazonaws.com/fiona-testing/coutwildrnp.zip \
     | fio filter '< (distance g (Point -109.0 38.5)) 1'
@@ -95,7 +95,7 @@ writes a copy of the feature, containing the modified geometry, to stdout. For
 example, polygonal features can be "cleaned" by using a ``buffer g 0``
 pipeline.
 
-.. code-block::
+.. code-block:: console
 
     $ fio cat zip+https://s3.amazonaws.com/fiona-testing/coutwildrnp.zip \
     | fio map 'buffer g 0'
@@ -109,7 +109,7 @@ of the input features in the context of these expressions is named "c".
 
 For example, the pipeline expression
 
-.. code-block::
+.. code-block:: console
 
     $ fio cat zip+https://s3.amazonaws.com/fiona-testing/coutwildrnp.zip \
     | fio reduce 'unary_union c'
