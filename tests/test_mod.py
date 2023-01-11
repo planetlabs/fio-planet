@@ -26,7 +26,7 @@ from fio_planet.features import map_feature, reduce_features, vertex_count
 def test_modulate_simple():
     """Set a feature's geometry."""
     # map_feature() is a generator. list() materializes the values.
-    feat = list(map_feature("(Point 0 0)", {"type": "Feature"}))
+    feat = list(map_feature("Point 0 0", {"type": "Feature"}))
     assert len(feat) == 1
 
     feat = feat[0]
@@ -44,7 +44,7 @@ def test_modulate_complex():
     feat = collection["features"][0]
     results = list(
         map_feature(
-            f"(simplify (buffer g (* 0.1 2) :{bufkwd} (- 4 3)) 0.001 :preserve_topology false)",
+            f"simplify (buffer g (* 0.1 2) :{bufkwd} (- 4 3)) 0.001 :preserve_topology false",
             feat,
         )
     )
@@ -79,17 +79,17 @@ def test_vertex_count(obj, count):
 def test_calculate_vertex_count(obj, count):
     """Confirm vertex counting is in func_map."""
     feat = {"type": "Feature", "properties": {}, "geometry": mapping(obj)}
-    assert count == list(map_feature("(vertex_count g)", feat))[0]
+    assert count == list(map_feature("vertex_count g", feat))[0]
 
 
 def test_calculate_builtin():
     """Confirm builtin function evaluation."""
-    assert 42 == list(map_feature("(int '42')", None))[0]
+    assert 42 == list(map_feature("int '42'", None))[0]
 
 
 def test_calculate_feature_attr():
     """Confirm feature attr evaluation."""
-    assert "LOLWUT" == list(map_feature("(upper f)", "lolwut"))[0]
+    assert "LOLWUT" == list(map_feature("upper f", "lolwut"))[0]
 
 
 def test_reduce_len():
@@ -98,7 +98,7 @@ def test_reduce_len():
         data = [json.loads(line) for line in seq.readlines()]
 
     # reduce() is a generator. list() materializes the values.
-    assert 3 == list(reduce_features("(len c)", data))[0]
+    assert 3 == list(reduce_features("len c", data))[0]
 
 
 def test_reduce_union():
@@ -107,7 +107,7 @@ def test_reduce_union():
         data = [json.loads(line) for line in seq.readlines()]
 
     # reduce() is a generator. list() materializes the values.
-    result = list(reduce_features("(unary_union c)", data))
+    result = list(reduce_features("unary_union c", data))
     assert len(result) == 1
 
     val = result[0]
@@ -121,7 +121,7 @@ def test_reduce_union_area():
         data = [json.loads(line) for line in seq.readlines()]
 
     # reduce() is a generator.
-    result = list(reduce_features("(area (unary_union c))", data))
+    result = list(reduce_features("area (unary_union c)", data))
     assert len(result) == 1
 
     val = result[0]
@@ -135,7 +135,7 @@ def test_reduce_union_geom_type():
         data = [json.loads(line) for line in seq.readlines()]
 
     # reduce() is a generator.
-    result = list(reduce_features("(geom_type (unary_union c))", data))
+    result = list(reduce_features("geom_type (unary_union c)", data))
     assert len(result) == 1
     assert "GeometryCollection" == result[0]
 
@@ -148,5 +148,5 @@ def test_reduce_union_geom_type():
 )
 def test_dump_eval(obj, count):
     feature = {"type": "Feature", "properties": {}, "geometry": mapping(obj)}
-    result = map_feature("(identity g)", feature, dump_parts=True)
+    result = map_feature("identity g", feature, dump_parts=True)
     assert len(list(result)) == count

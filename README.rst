@@ -37,7 +37,7 @@ method. The list of functions and callables available in expressions includes:
 
 Here's an expression that evaluates to a Shapely Point instance. ``Point`` is a
 callable instance constructor and the pair of ``0`` values are positional
-arguments.
+arguments. Note that the outermost parentheses of an expression are optional.
 
 .. code-block:: lisp
 
@@ -50,7 +50,7 @@ to that method's ``distance`` keyword argument.
 
 .. code-block:: lisp
 
-    (buffer (Point 0 0) :distance 1.0)
+    buffer (Point 0 0) :distance 1.0
 
 fio-filter and fio-map evaluate expressions in the context of a GeoJSON feature
 and its geometry attribute. These are named ``f`` and ``g``. For example, here
@@ -59,7 +59,7 @@ is an expression that tests whether the input feature is within a distance
 
 .. code-block:: lisp
 
-    (<= (distance g (Point 0 0)) 1.0)
+    <= (distance g (Point 0 0)) 1.0
 
 fio-reduce evaluates expressions in the context of the sequence of all input
 geometries, which is named ``c``. For example, this expression dissolves input
@@ -67,7 +67,7 @@ geometries using Shapely's ``unary_union``.
 
 .. code-block:: lisp
 
-    (unary_union c)
+    unary_union c
 
 fio-filter
 ----------
@@ -82,7 +82,7 @@ For example, this pipeline expression
 .. code-block::
 
     $ fio cat zip+https://s3.amazonaws.com/fiona-testing/coutwildrnp.zip \
-    | fio filter '(< (distance g (Point -109.0 38.5)) 1)'
+    | fio filter '< (distance g (Point -109.0 38.5)) 1'
 
 lets through all features that are less than one unit from the given point and
 filters out all other features.
@@ -92,13 +92,13 @@ fio-map
 
 For each feature read from stdin, fio-map applies a transformation pipeline and
 writes a copy of the feature, containing the modified geometry, to stdout. For
-example, polygonal features can be "cleaned" by using a ``(buffer g 0)``
+example, polygonal features can be "cleaned" by using a ``buffer g 0``
 pipeline.
 
 .. code-block::
 
     $ fio cat zip+https://s3.amazonaws.com/fiona-testing/coutwildrnp.zip \
-    | fio map '(buffer g 0)'
+    | fio map 'buffer g 0'
 
 fio-reduce
 ----------
@@ -112,7 +112,7 @@ For example, the pipeline expression
 .. code-block::
 
     $ fio cat zip+https://s3.amazonaws.com/fiona-testing/coutwildrnp.zip \
-    | fio reduce '(unary_union c)'
+    | fio reduce 'unary_union c'
 
 dissolves the geometries of input features.
 

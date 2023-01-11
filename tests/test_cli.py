@@ -27,7 +27,7 @@ def test_map_count():
     runner = CliRunner()
     result = runner.invoke(
         main_group,
-        ["map", "(centroid (buffer g 1.0))"],
+        ["map", "centroid (buffer g 1.0)"],
         input=data,
         catch_exceptions=False,
     )
@@ -42,7 +42,7 @@ def test_reduce_area():
 
     runner = CliRunner()
     result = runner.invoke(
-        main_group, ["reduce", "--raw", "(area (unary_union c))"], input=data
+        main_group, ["reduce", "--raw", "area (unary_union c)"], input=data
     )
     assert result.exit_code == 0
     assert 0 < float(result.output) < 1e-5
@@ -54,7 +54,7 @@ def test_reduce_union():
         data = seq.read()
 
     runner = CliRunner()
-    result = runner.invoke(main_group, ["reduce", "(unary_union c)"], input=data)
+    result = runner.invoke(main_group, ["reduce", "unary_union c"], input=data)
     assert result.exit_code == 0
     assert result.output.count('"type": "Polygon"') == 1
     assert result.output.count('"type": "LineString"') == 1
@@ -68,7 +68,7 @@ def test_filter():
 
     runner = CliRunner()
     result = runner.invoke(
-        main_group, ["filter", "(< (distance g (Point 4 43)) 0.625)"], input=data
+        main_group, ["filter", "< (distance g (Point 4 43)) 0.625"], input=data
     )
     assert result.exit_code == 0
     assert result.output.count('"type": "Polygon"') == 1
