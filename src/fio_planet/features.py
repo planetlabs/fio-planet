@@ -52,7 +52,7 @@ def vertex_count(obj) -> int:
         return len(shp.coords)
 
 
-# Patch snuggs' func_map, extending it with Python builtins, geometry
+# Patch snuggs's func_map, extending it with Python builtins, geometry
 # methods and attributes, and functions exported in the shapely module
 # (such as set_precision).
 
@@ -128,7 +128,7 @@ snuggs.func_map = FuncMapper(
         k: getattr(itertools, k)
         for k in dir(itertools)
         if not k.startswith("_") and callable(getattr(itertools, k))
-    }
+    },
 )
 
 
@@ -137,11 +137,24 @@ def map_feature(expression: str, feature: dict, dump_parts: bool = False) -> Gen
 
     Yields one or more values.
 
+    Parameters
+    ----------
+    expression : str
+        A snuggs expression. The outermost parentheses are optional.
+    feature : dict
+        A Fiona feature object.
+    dump_parts : bool, optional (default: False)
+        If True, the parts of the feature's geometry are turned into
+        new features.
+
     Yields
     ------
     object
 
     """
+    if not (expression.startswith("(") and expression.endswith(")")):
+        expression = f"({expression})"
+
     try:
         geom = shape(feature.get("geometry", None))
         if dump_parts and hasattr(geom, "geoms"):
@@ -167,7 +180,7 @@ def map_feature(expression: str, feature: dict, dump_parts: bool = False) -> Gen
                 yield result
 
 
-def reduce_features(pipeline: str, features: Iterable[Mapping]) -> Generator:
+def reduce_features(expression: str, features: Iterable[Mapping]) -> Generator:
     """Reduce a collection of features to a single value.
 
     The pipeline is a string which, when evaluated by snuggs, produces
@@ -186,8 +199,11 @@ def reduce_features(pipeline: str, features: Iterable[Mapping]) -> Generator:
     object
 
     """
+    if not (expression.startswith("(") and expression.endswith(")")):
+        expression = f"({expression})"
+
     collection = (shape(feat["geometry"]) for feat in features)
-    result = snuggs.eval(pipeline, c=collection)
+    result = snuggs.eval(expression, c=collection)
     if isinstance(result, str):
         yield result
     else:
