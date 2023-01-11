@@ -13,13 +13,12 @@ Installation
 Usage
 -----
 
-fio-planet adds ``filter``, ``map``, and ``reduce`` commands to Fiona's
-``fio`` program. fio-filter evaluates an expression for each feature in
-a stream of GeoJSON features, passing those for which the expression is true.
-fio-map maps an expression over a stream of GeoJSON features, producing
-a stream of new features or other values. fio-reduce applies an expression to
-a sequence of GeoJSON features, reducing them to a single feature or other
-value.
+fio-planet adds ``filter``, ``map``, and ``reduce`` commands to Fiona's ``fio``
+program. fio-filter evaluates an expression for each feature in a stream of
+GeoJSON features, passing those for which the expression is true.  fio-map maps
+an expression over a stream of GeoJSON features, producing a stream of new
+features or other values. fio-reduce applies an expression to a sequence of
+GeoJSON features, reducing them to a single feature or other value.
 
 Expressions take the form of parenthesized lists which may contain other
 expressions. The first item in a list is the name of a function or method, or
@@ -36,8 +35,8 @@ method. The list of functions and callables available in expressions includes:
   ``unary_union``
 * All methods of Shapely geometry classes.
 
-Here's an expression that evaluates to a Shapely Point instance. ``Point`` is
-a callable instance constructor and the pair of ``0`` values are positional
+Here's an expression that evaluates to a Shapely Point instance. ``Point`` is a
+callable instance constructor and the pair of ``0`` values are positional
 arguments.
 
 .. code-block:: lisp
@@ -70,80 +69,52 @@ geometries using Shapely's ``unary_union``.
 
     (unary_union c)
 
+fio-filter
+----------
+
+For each feature read from stdin, fio-filter evaluates a pipeline of one or
+more steps described using methods from the Shapely library in Lisp-like
+expressions. If the pipeline expression evaluates to True, the feature passes
+through the filter. Otherwise the feature does not pass.
+
+For example, this pipeline expression
+
+.. code-block::
+
+    $ fio cat zip+https://s3.amazonaws.com/fiona-testing/coutwildrnp.zip \
+    | fio filter '(< (distance g (Point -109.0 38.5)) 1)'
+
+lets through all features that are less than one unit from the given point and
+filters out all other features.
+
 fio-map
 -------
 
-For each feature read from stdin, fio-map applies a transformation pipeline of
-one or more steps described using methods from the Shapely library in Lisp-like
-expressions and writes a copy of the feature, containing the modified geometry,
-to stdout. For example, polygonal features can be "cleaned" by using
-a ``(buffer g 0)`` pipeline.
+For each feature read from stdin, fio-map applies a transformation pipeline and
+writes a copy of the feature, containing the modified geometry, to stdout. For
+example, polygonal features can be "cleaned" by using a ``(buffer g 0)``
+pipeline.
 
 .. code-block::
 
     $ fio cat zip+https://s3.amazonaws.com/fiona-testing/coutwildrnp.zip \
     | fio map '(buffer g 0)'
 
-Or we can replace polygons with their centroids using ``centroid``.
+fio-reduce
+----------
+
+Given a sequence of GeoJSON features (RS-delimited or not) on stdin this prints
+a single value using a provided transformation pipeline.  The set of geometries
+of the input features in the context of these expressions is named "c".
+
+For example, the pipeline expression
 
 .. code-block::
 
     $ fio cat zip+https://s3.amazonaws.com/fiona-testing/coutwildrnp.zip \
-    | fio map '(centroid g)'
+    | fio reduce '(unary_union c)'
 
-Or we can dilate and erode polyons and find those centroids, and combine with
-the program ``jq`` to weed out unwanted features and properties.
-
-.. code-block::
-
-    fio cat zip+https://s3.amazonaws.com/fiona-testing/coutwildrnp.zip \
-      | jq -c 'select(.properties.STATE == "CO")' \
-      | jq -c '.properties |= {NAME}' \
-      | fio map '(centroid (buffer (buffer g 0.1) -0.1))' \
-      | jq
-    {
-    "geometry": {
-        "type": "Point",
-        "coordinates": [
-        -106.69864626902294,
-        40.764477220414065
-        ]
-    },
-    "id": "2",
-    "properties": {
-        "NAME": "Mount Zirkel Wilderness"
-    },
-    "type": "Feature"
-    }
-    {
-    "geometry": {
-        "type": "Point",
-        "coordinates": [
-        -105.95025891510426,
-        40.728674082430274
-        ]
-    },
-    "id": "4",
-    "properties": {
-        "NAME": "Rawah Wilderness"
-    },
-    "type": "Feature"
-    }
-    {
-    "geometry": {
-        "type": "Point",
-        "coordinates": [
-        -105.65903404201194,
-        40.58395201365962
-        ]
-    },
-    "id": "6",
-    "properties": {
-        "NAME": "Comanche Peak Wilderness"
-    },
-    "type": "Feature"
-    }
-    ...
+dissolves the geometries of input features.
 
 Support
 -------
