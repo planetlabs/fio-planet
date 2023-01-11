@@ -42,10 +42,8 @@
 
 from collections import OrderedDict
 import functools
-import itertools
 import operator
 import re
-import sys
 
 from pyparsing import (
     Keyword,
@@ -128,16 +126,31 @@ op_map = {
     ">": operator.gt,
 }
 
+
+def compose(f, g):
+    """Compose two functions.
+
+    compose(f, g)(x) = f(g(x)).
+
+    """
+    return lambda x, *args, **kwds: f(g(x))
+
+
 func_map = {}
 
 higher_func_map = {
-    "map": map if sys.version_info[0] >= 3 else itertools.imap,
+    "compose": compose,
+    "map": map,
     "partial": functools.partial,
+    "attrgetter": operator.attrgetter,
+    "methodcaller": operator.methodcaller,
+    "itemgetter": operator.itemgetter,
+    "reduce": functools.reduce,
 }
 
-nil = Keyword("null").set_parse_action(lambda s, l, t: None)
-true = Keyword("true").set_parse_action(lambda s, l, t: True)
-false = Keyword("false").set_parse_action(lambda s, l, t: False)
+nil = Keyword("null").set_parse_action(lambda source, loc, toks: None)
+true = Keyword("true").set_parse_action(lambda source, loc, toks: True)
+false = Keyword("false").set_parse_action(lambda source, loc, toks: False)
 
 
 def resolve_var(source, loc, toks):
@@ -154,7 +167,9 @@ var = pyparsing_common.identifier.set_parse_action(resolve_var)
 string = QuotedString("'") | QuotedString('"')
 lparen = Literal("(").suppress()
 rparen = Literal(")").suppress()
-op = oneOf(" ".join(op_map.keys())).set_parse_action(lambda s, l, t: op_map[t[0]])
+op = oneOf(" ".join(op_map.keys())).set_parse_action(
+    lambda source, loc, toks: op_map[toks[0]]
+)
 
 
 def resolve_func(source, loc, toks):
@@ -171,8 +186,8 @@ def resolve_func(source, loc, toks):
 # variables.
 func = Regex(r"(?<=\()[{}]+".format(identchars)).set_parse_action(resolve_func)
 
-higher_func = oneOf("map partial").set_parse_action(
-    lambda s, l, t: higher_func_map[t[0]]
+higher_func = oneOf(" ".join(higher_func_map.keys())).set_parse_action(
+    lambda source, loc, toks: higher_func_map[toks[0]]
 )
 
 func_expr = Forward()
@@ -186,7 +201,7 @@ class KeywordArg:
 
 
 kwarg = Regex(r":[{}]+".format(identchars)).set_parse_action(
-    lambda s, l, t: KeywordArg(t[0][1:])
+    lambda source, loc, toks: KeywordArg(toks[0][1:])
 )
 
 operand = (
@@ -210,7 +225,7 @@ func_expr << Group(
 higher_func_expr << Group(
     lparen
     + higher_func
-    + (nil | higher_func_expr | op | func)
+    + (nil | higher_func_expr | op | func | OneOrMore(operand))
     + ZeroOrMore(operand)
     + rparen
 )
