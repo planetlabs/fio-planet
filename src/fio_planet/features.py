@@ -204,6 +204,7 @@ def reduce_features(expression: str, features: Iterable[Mapping]) -> Generator:
 
     collection = (shape(feat["geometry"]) for feat in features)
     result = snuggs.eval(expression, c=collection)
+
     if isinstance(result, str):
         yield result
     else:

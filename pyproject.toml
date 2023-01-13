@@ -6,7 +6,7 @@ build-backend = "flit_core.buildapi"
 name = "fio-planet"
 version = "1.0dev0"
 description = "Planet Labs plugins for the Fiona CLI"
-readme = "README.rst"
+readme = "README.md"
 authors = [{name = "Sean Gillies"}]
 maintainers = [
     {name = "Planet Developer Relations", email = "developers@planet.com"}
