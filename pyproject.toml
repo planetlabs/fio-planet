@@ -27,7 +27,7 @@ dependencies = [
     "click",
     "fiona",
     "pyparsing",
-    "shapely>=2.0b2",
+    "shapely>=2.0",
 ]
 
 [project.optional-dependencies]

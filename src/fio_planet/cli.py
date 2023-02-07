@@ -16,7 +16,9 @@
 
 """Fiona CLI command plugins."""
 
+from collections import defaultdict
 from copy import copy
+import itertools
 import json
 
 import click
@@ -116,9 +118,9 @@ def map_cmd(pipeline, raw, no_input, dump_parts, use_rs):
 def filter_cmd(pipeline, use_rs):
     """Evaluate pipeline expressions to filter GeoJSON features.
 
-    The pipeline is a string which, when evaluated, gives
-    a new value for each input feature. If the value evaluates to True, the
-    feature passes through the filter. Otherwise the feature does not pass.
+    The pipeline is a string which, when evaluated, gives a new value
+    for each input feature. If the value evaluates to True, the feature
+    passes through the filter. Otherwise the feature does not pass.
 
     The pipeline consists of expressions in the
     form of parenthesized lists which may contain other expressions.
@@ -158,7 +160,13 @@ def filter_cmd(pipeline, use_rs):
     help="Print raw result, do not wrap in a GeoJSON Feature.",
 )
 @use_rs_opt
-def reduce_cmd(pipeline, raw, use_rs):
+@click.option(
+    "--zip-properties",
+    is_flag=True,
+    default=False,
+    help="Zip the items of input feature properties together for output.",
+)
+def reduce_cmd(pipeline, raw, use_rs, zip_properties):
     """Reduce a stream of GeoJSON features to one value.
 
     Given a sequence of GeoJSON features (RS-delimited or not) on stdin
@@ -181,10 +189,26 @@ def reduce_cmd(pipeline, raw, use_rs):
 
     dissolves the geometries of input features.
 
+    To keep the properties of input features while reducing them to a
+    single feature, use the --zip-properties flag. The properties of the
+    input features will surface in the output feature as lists
+    containing the input values.
+
     """
     stdin = click.get_text_stream("stdin")
     features = (feat for feat in obj_gen(stdin))
-    for result in reduce_features(pipeline, features):
+
+    if zip_properties:
+        prop_features, geom_features = itertools.tee(features)
+        properties = defaultdict(list)
+        for feat in prop_features:
+            for key, val in feat["properties"].items():
+                properties[key].append(val)
+    else:
+        geom_features = features
+        properties = {}
+
+    for result in reduce_features(pipeline, geom_features):
         if use_rs:
             click.echo("\x1e", nl=False)
         if raw:
@@ -192,6 +216,11 @@ def reduce_cmd(pipeline, raw, use_rs):
         else:
             click.echo(
                 json.dumps(
-                    {"type": "Feature", "properties": {}, "geometry": result, "id": "0"}
+                    {
+                        "type": "Feature",
+                        "properties": properties,
+                        "geometry": result,
+                        "id": "0",
+                    }
                 )
             )
