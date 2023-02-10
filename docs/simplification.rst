@@ -25,7 +25,7 @@ the sequence of numbers.
 
 Here's what the RMNP wilderness patrol zones features look like in QGIS.
 
-.. image:: https://user-images.githubusercontent.com/33697/202820493-2cae58f4-a968-4078-8a60-ba7e2cbe0434.png"
+.. image:: https://user-images.githubusercontent.com/33697/202820493-2cae58f4-a968-4078-8a60-ba7e2cbe0434.png
    :width: 600
 
 Counting vertices after making a simplified buffer
@@ -44,7 +44,7 @@ on the nature of the data, especially the distance between vertices.
     | fio map '(vertex_count g)' --raw
     274
 
-.. image:: https://user-images.githubusercontent.com/33697/202821086-5bfd4437-3c42-420e-84cf-d3e1287d2d8c.png"
+.. image:: https://user-images.githubusercontent.com/33697/202821086-5bfd4437-3c42-420e-84cf-d3e1287d2d8c.png
    :width: 600
 
 Counting vertices after dissolving convex hulls of features
