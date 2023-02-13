@@ -20,7 +20,14 @@ import pytest
 import shapely
 from shapely.geometry import MultiPoint, Point, mapping
 
-from fio_planet.features import map_feature, reduce_features, vertex_count
+from fio_planet.features import (
+    map_feature,
+    reduce_features,
+    vertex_count,
+    collect,
+    dump,
+    identity,
+)
 
 
 def test_modulate_simple():
@@ -150,3 +157,22 @@ def test_dump_eval(obj, count):
     feature = {"type": "Feature", "properties": {}, "geometry": mapping(obj)}
     result = map_feature("identity g", feature, dump_parts=True)
     assert len(list(result)) == count
+
+
+def test_collect():
+    """Collect two points."""
+    geom = collect((Point(0, 0), Point(1, 1)))
+    assert geom.type == "GeometryCollection"
+
+
+def test_dump():
+    """Dump two points."""
+    geoms = list(dump(MultiPoint([(0, 0), (1, 1)])))
+    assert len(geoms) == 2
+    assert all(g.type == "Point" for g in geoms)
+
+
+def test_identity():
+    """Check identity."""
+    geom = Point(1.1, 2.2)
+    assert geom == identity(geom)
