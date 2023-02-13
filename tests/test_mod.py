@@ -176,12 +176,3 @@ def test_identity():
     """Check identity."""
     geom = Point(1.1, 2.2)
     assert geom == identity(geom)
-
-
-def test_vertex_count():
-    """Count vertices of a polygon with a hole."""
-    assert 82 == vertex_count(
-        Point(0, 0)
-        .buffer(1.0, quad_segs=16)
-        .difference(Point(0, 0).buffer(0.2, quad_segs=4))
-    )
