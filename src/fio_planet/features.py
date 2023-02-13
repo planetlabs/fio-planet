@@ -26,32 +26,6 @@ from shapely.geometry.base import BaseGeometry, BaseMultipartGeometry
 
 from . import snuggs
 
-
-def vertex_count(obj) -> int:
-    """Count the vertices of a GeoJSON-like geometry object.
-
-    Parameters
-    ----------
-    obj: object
-        A GeoJSON-like mapping or an object that provides
-        __geo_interface__.
-
-    Returns
-    -------
-    int
-
-    """
-    shp = shape(obj)
-    if hasattr(shp, "geoms"):
-        return sum(vertex_count(part) for part in shp.geoms)
-    elif hasattr(shp, "exterior"):
-        return vertex_count(shp.exterior) + sum(
-            vertex_count(ring) for ring in shp.interiors
-        )
-    else:
-        return len(shp.coords)
-
-
 # Patch snuggs's func_map, extending it with Python builtins, geometry
 # methods and attributes, and functions exported in the shapely module
 # (such as set_precision).
@@ -76,7 +50,23 @@ class FuncMapper(UserDict):
             )
 
 
-def dump(shp) -> Generator:
+def collect(geoms: Iterable) -> object:
+    """Turn a sequence of geometries into a single GeometryCollection.
+
+    Parameters
+    ----------
+    geoms : Iterable
+        A sequence of geometry objects.
+
+    Returns
+    -------
+    Geometry
+
+    """
+    return shapely.GeometryCollection(list(geoms))
+
+
+def dump(shp: object) -> Generator:
     """Get the individual parts of a geometry object.
 
     If the given geometry object has a single part, e.g., is an
@@ -101,7 +91,7 @@ def dump(shp) -> Generator:
         yield part
 
 
-def identity(obj):
+def identity(obj: object) -> object:
     """Get back the given argument.
 
     To help in making expression lists, where the first item must be a
@@ -120,7 +110,33 @@ def identity(obj):
     return obj
 
 
+def vertex_count(obj: object) -> int:
+    """Count the vertices of a GeoJSON-like geometry object.
+
+    Parameters
+    ----------
+    obj: object
+        A GeoJSON-like mapping or an object that provides
+        __geo_interface__.
+
+    Returns
+    -------
+    int
+
+    """
+    shp = shape(obj)
+    if hasattr(shp, "geoms"):
+        return sum(vertex_count(part) for part in shp.geoms)
+    elif hasattr(shp, "exterior"):
+        return vertex_count(shp.exterior) + sum(
+            vertex_count(ring) for ring in shp.interiors
+        )
+    else:
+        return len(shp.coords)
+
+
 snuggs.func_map = FuncMapper(
+    collect=collect,
     dump=dump,
     identity=identity,
     vertex_count=vertex_count,
