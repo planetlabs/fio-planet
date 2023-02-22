@@ -4,7 +4,7 @@ build-backend = "flit_core.buildapi"
 
 [project]
 name = "fio-planet"
-version = "1.0dev0"
+version = "1.0a1"
 description = "Planet Labs plugins for the Fiona CLI"
 readme = "README.rst"
 authors = [{name = "Sean Gillies"}]
@@ -12,7 +12,7 @@ maintainers = [
     {name = "Planet Developer Relations", email = "developers@planet.com"}
 ]
 classifiers = [
-    "Development Status :: 1 - Planning",
+    "Development Status :: 3 - Alpha",
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: Apache Software License",
 ]
