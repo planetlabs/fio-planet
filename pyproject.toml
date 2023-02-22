@@ -3,7 +3,7 @@ requires = ["flit_core>=3.2"]
 build-backend = "flit_core.buildapi"
 
 [project]
-name = "fio-planet"
+name = "fio_planet"
 dynamic = ["version", "description"]
 readme = "README.rst"
 authors = [{name = "Sean Gillies"}]
@@ -32,8 +32,8 @@ dependencies = [
 [tool.flit.sdist]
 exclude = [".github/", ".gitignore"]
 
-[tool.flit.module]
-name = "fio_planet"
+# [tool.flit.module]
+# name = "fio_planet"
 
 [project.optional-dependencies]
 test = ["pytest-cov"]
