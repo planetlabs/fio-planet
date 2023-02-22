@@ -144,6 +144,9 @@ higher_func_map: Mapping = {
     "map": map,
     "partial": functools.partial,
     "reduce": functools.reduce,
+    "attrgetter": operator.attrgetter,
+    "methodcaller": operator.methodcaller,
+    "itemgetter": operator.itemgetter,
 }
 
 nil = Keyword("null").set_parse_action(lambda source, loc, toks: None)
