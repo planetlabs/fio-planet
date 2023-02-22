@@ -40,3 +40,9 @@ reduce = "fio_planet.cli:reduce_cmd"
 
 [tool.flit.module]
 name = "fio_planet"
+
+[tool.mypy]
+mypy_path = "src"
+namespace_packages = true
+explicit_package_bases = true
+files = "src,tests"

@@ -22,8 +22,8 @@ import itertools
 import json
 
 import click
-from cligj import use_rs_opt
-from fiona.fio.helpers import obj_gen
+from cligj import use_rs_opt  # type: ignore
+from fiona.fio.helpers import obj_gen  # type: ignore
 
 from .features import map_feature, reduce_features
 

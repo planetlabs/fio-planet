@@ -15,10 +15,16 @@ Usage
 
 fio-planet adds ``filter``, ``map``, and ``reduce`` commands to Fiona's ``fio``
 program. fio-filter evaluates an expression for each feature in a stream of
-GeoJSON features, passing those for which the expression is true.  fio-map maps
+GeoJSON features, passing those for which the expression is true. fio-map maps
 an expression over a stream of GeoJSON features, producing a stream of new
 features or other values. fio-reduce applies an expression to a sequence of
 GeoJSON features, reducing them to a single feature or other value.
+
+These commands provide some of the features of spatial SQL, but act on
+features in a GeoJSON feature sequence instead of rows in a spatial table.
+fio-filter decimates a seqence of features, fio-map multiplies features, and
+fio-reduce turns a sequence of many features into a sequence of exactly one.
+In combination, many transformations are possible.
 
 Expressions take the form of parenthesized lists which may contain other
 expressions. The first item in a list is the name of a function or method, or
@@ -28,8 +34,7 @@ items are the positional and keyword arguments for the named function or
 method. The list of functions and callables available in expressions includes:
 
 * Python builtins such as ``dict``, ``list``, and ``map``
-* From functools ``attrgetter``, ``itemgetter``, ``methodcaller``, and
-  ``reduce``
+* From functools: ``reduce``.
 * All public functions from itertools, e.g., ``islice``, and ``repeat``
 * All functions importable from Shapely 2.0, e.g., ``Point``, and
   ``unary_union``
@@ -130,17 +135,20 @@ Roadmap
 
 Version 1.0 adds ``filter``, ``map``, and ``reduce`` to Fiona's ``fio`` CLI.
 
+Note that there are no conditional forms in 1.0's expressions. We will likely
+add a `cond` after 1.0.
+
 Contributing
 ------------
 
-Before 1.0, the project is looking for feedback on the new commands more than
-it is looking for new commands.
+Before 1.0, the project is looking for feedback on the existing commands more
+than it is looking for new commands.
 
-We use ``tox`` to run the tests.
+We use ``flake8``, ``mypy``, and ``tox`` for static checks and testing.
 
 .. code-block::
 
-    $ tox
+    $ flake8 && mypy && tox
 
 Authors and acknowledgment
 --------------------------

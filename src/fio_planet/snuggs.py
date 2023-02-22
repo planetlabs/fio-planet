@@ -44,8 +44,9 @@ from collections import OrderedDict
 import functools
 import operator
 import re
+from typing import Mapping
 
-from pyparsing import (
+from pyparsing import (  # type: ignore
     Keyword,
     oneOf,
     Literal,
@@ -136,15 +137,12 @@ def compose(f, g):
     return lambda x, *args, **kwds: f(g(x))
 
 
-func_map = {}
+func_map: Mapping = {}
 
-higher_func_map = {
+higher_func_map: Mapping = {
     "compose": compose,
     "map": map,
     "partial": functools.partial,
-    "attrgetter": operator.attrgetter,
-    "methodcaller": operator.methodcaller,
-    "itemgetter": operator.itemgetter,
     "reduce": functools.reduce,
 }
 

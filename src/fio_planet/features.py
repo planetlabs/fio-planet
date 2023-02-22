@@ -18,11 +18,11 @@
 
 from collections import UserDict
 import itertools
-from typing import Generator, Iterable, Mapping
+from typing import Generator, Iterable, Mapping, Union
 
-import shapely
-from shapely.geometry import mapping, shape
-from shapely.geometry.base import BaseGeometry, BaseMultipartGeometry
+import shapely  # type: ignore
+from shapely.geometry import mapping, shape  # type: ignore
+from shapely.geometry.base import BaseGeometry, BaseMultipartGeometry  # type: ignore
 
 from . import snuggs
 
@@ -31,14 +31,14 @@ from . import snuggs
 # (such as set_precision).
 
 
-class FuncMapper(UserDict):
+class FuncMapper(UserDict, Mapping):
     """Resolves functions from names in pipeline expressions."""
 
     def __getitem__(self, key):
         """Get a function by its name."""
         if key in self.data:
             return self.data[key]
-        elif key in __builtins__:
+        elif key in __builtins__ and not key.startswith("__"):
             return __builtins__[key]
         elif key in dir(shapely):
             return lambda g, *args, **kwargs: getattr(shapely, key)(g, *args, **kwargs)
@@ -66,7 +66,7 @@ def collect(geoms: Iterable) -> object:
     return shapely.GeometryCollection(list(geoms))
 
 
-def dump(shp: object) -> Generator:
+def dump(shp: Union[BaseGeometry, BaseMultipartGeometry]) -> Generator:
     """Get the individual parts of a geometry object.
 
     If the given geometry object has a single part, e.g., is an
@@ -148,7 +148,7 @@ snuggs.func_map = FuncMapper(
 )
 
 
-def map_feature(expression: str, feature: dict, dump_parts: bool = False) -> Generator:
+def map_feature(expression: str, feature: Mapping, dump_parts: bool = False) -> Generator:
     """Map a pipeline expression to a feature.
 
     Yields one or more values.
@@ -182,8 +182,10 @@ def map_feature(expression: str, feature: dict, dump_parts: bool = False) -> Gen
 
     for part in parts:
         result = snuggs.eval(expression, g=part, f=feature)
-        if isinstance(result, str):
+        if isinstance(result, (str, float, int, Mapping)):
             yield result
+        elif isinstance(result, (BaseGeometry, BaseMultipartGeometry)):
+            yield mapping(result)
         else:
             try:
                 for item in result:
