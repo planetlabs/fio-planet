@@ -20,6 +20,7 @@ import pytest  # type: ignore
 import shapely  # type: ignore
 from shapely.geometry import MultiPoint, Point, mapping  # type: ignore
 
+from fio_planet.errors import ReduceError
 from fio_planet.features import (  # type: ignore
     map_feature,
     reduce_features,
@@ -99,6 +100,20 @@ def test_calculate_feature_attr():
     assert "LOLWUT" == list(map_feature("upper f", "lolwut"))[0]
 
 
+def test_calculate_point():
+    """Confirm feature attr evaluation."""
+    result = list(map_feature("Point 0 0", None))[0]
+    assert "Point" == result["type"]
+
+
+def test_calculate_points():
+    """Confirm feature attr evaluation."""
+    result = list(map_feature("list (Point 0 0) (buffer (Point 1 1) 1)", None))
+    assert 2 == len(result)
+    assert "Point" == result[0]["type"]
+    assert "Polygon" == result[1]["type"]
+
+
 def test_reduce_len():
     """Reduce can count the number of input features."""
     with open("tests/data/trio.seq") as seq:
@@ -147,6 +162,15 @@ def test_reduce_union_geom_type():
     assert "GeometryCollection" == result[0]
 
 
+def test_reduce_error():
+    """Raise ReduceError when expression doesn't reduce."""
+    with open("tests/data/trio.seq") as seq:
+        data = [json.loads(line) for line in seq.readlines()]
+
+    with pytest.raises(ReduceError):
+        list(reduce_features("(identity c)", data))
+
+
 @pytest.mark.parametrize(
     "obj, count",
     [
@@ -166,6 +190,13 @@ def test_collect():
 
 
 def test_dump():
+    """Dump a point."""
+    geoms = list(dump(Point(0, 0)))
+    assert len(geoms) == 1
+    assert geoms[0].type == "Point"
+
+
+def test_dump_multi():
     """Dump two points."""
     geoms = list(dump(MultiPoint([(0, 0), (1, 1)])))
     assert len(geoms) == 2

@@ -24,6 +24,7 @@ import shapely  # type: ignore
 from shapely.geometry import mapping, shape  # type: ignore
 from shapely.geometry.base import BaseGeometry, BaseMultipartGeometry  # type: ignore
 
+from .errors import ReduceError
 from . import snuggs
 
 # Patch snuggs's func_map, extending it with Python builtins, geometry
@@ -195,8 +196,6 @@ def map_feature(
                         item = mapping(item)
                     yield item
             except TypeError:
-                if isinstance(result, (BaseGeometry, BaseMultipartGeometry)):
-                    result = mapping(result)
                 yield result
 
 
@@ -218,6 +217,10 @@ def reduce_features(expression: str, features: Iterable[Mapping]) -> Generator:
     ------
     object
 
+    Raises
+    ------
+    ReduceError
+
     """
     if not (expression.startswith("(") and expression.endswith(")")):
         expression = f"({expression})"
@@ -225,15 +228,9 @@ def reduce_features(expression: str, features: Iterable[Mapping]) -> Generator:
     collection = (shape(feat["geometry"]) for feat in features)
     result = snuggs.eval(expression, c=collection)
 
-    if isinstance(result, str):
+    if isinstance(result, (str, float, int, Mapping)):
         yield result
+    elif isinstance(result, (BaseGeometry, BaseMultipartGeometry)):
+        yield mapping(result)
     else:
-        try:
-            for item in result:
-                if isinstance(item, (BaseGeometry, BaseMultipartGeometry)):
-                    item = mapping(item)
-                yield item
-        except TypeError:
-            if isinstance(result, (BaseGeometry, BaseMultipartGeometry)):
-                result = mapping(result)
-            yield result
+        raise ReduceError("Expression failed to reduce to a single value.")
