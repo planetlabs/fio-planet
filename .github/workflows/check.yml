@@ -1,4 +1,4 @@
-name: Lint
+name: Static checks
 on: [push, pull_request]
 jobs:
   lint:
