@@ -3,18 +3,17 @@ fio-planet
 
 A package of Fiona CLI plugin commands from Planet Labs.
 
-.. image:: https://github.com/planetlabs/fio-planet/actions/workflows/checks.yml/badge.svg
-   :target: https://github.com/planetlabs/fio-planet/actions/workflows/checks.yml
+.. image:: https://github.com/planetlabs/fio-planet/actions/workflows/check.yml/badge.svg
+   :target: https://github.com/planetlabs/fio-planet/actions/workflows/check.yml
 
-.. image:: https://github.com/planetlabs/fio-planet/actions/workflows/tests.yml/badge.svg
-   :target: https://github.com/planetlabs/fio-planet/actions/workflows/tests.yml
+.. image:: https://github.com/planetlabs/fio-planet/actions/workflows/test.yml/badge.svg
+   :target: https://github.com/planetlabs/fio-planet/actions/workflows/test.yml
 
-These commands are for creating
-Unix pipelines which manipulate streams of GeoJSON features. Such pipelines
-provide a subset of the functionality of more complicated tools such as PostGIS
-or GeoPandas and are intended for use with streams of hundreds to thousands of
-features, where the overhead of JSON serialization between pieces of a pipeline
-is tolerable.
+These commands are for creating Unix pipelines which manipulate streams of
+GeoJSON features. Such pipelines provide a subset of the functionality of more
+complicated tools such as PostGIS or GeoPandas and are intended for use with
+streams of hundreds to thousands of features, where the overhead of JSON
+serialization between pieces of a pipeline is tolerable.
 
 Installation
 ------------
