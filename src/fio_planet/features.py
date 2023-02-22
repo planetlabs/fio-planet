@@ -148,7 +148,9 @@ snuggs.func_map = FuncMapper(
 )
 
 
-def map_feature(expression: str, feature: Mapping, dump_parts: bool = False) -> Generator:
+def map_feature(
+    expression: str, feature: Mapping, dump_parts: bool = False
+) -> Generator:
     """Map a pipeline expression to a feature.
 
     Yields one or more values.

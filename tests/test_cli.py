@@ -67,12 +67,17 @@ def test_reduce_union_zip_properties():
         data = seq.read()
 
     runner = CliRunner()
-    result = runner.invoke(main_group, ["reduce", "--zip-properties", "unary_union c"], input=data)
+    result = runner.invoke(
+        main_group, ["reduce", "--zip-properties", "unary_union c"], input=data
+    )
     assert result.exit_code == 0
     assert result.output.count('"type": "Polygon"') == 1
     assert result.output.count('"type": "LineString"') == 1
     assert result.output.count('"type": "GeometryCollection"') == 1
-    assert '''"name": ["Le ch\\u00e2teau d\'eau", "promenade du Peyrou"]''' in result.output
+    assert (
+        """"name": ["Le ch\\u00e2teau d\'eau", "promenade du Peyrou"]"""
+        in result.output
+    )
 
 
 def test_filter():

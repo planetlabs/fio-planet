@@ -16,11 +16,11 @@
 
 import json
 
-import pytest
+import pytest  # type: ignore
 import shapely  # type: ignore
 from shapely.geometry import MultiPoint, Point, mapping  # type: ignore
 
-from fio_planet.features import (
+from fio_planet.features import (  # type: ignore
     map_feature,
     reduce_features,
     vertex_count,
