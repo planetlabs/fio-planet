@@ -1,7 +1,12 @@
 fio-planet
 ==========
 
-A package of Fiona CLI plugins from Planet Labs.
+This is a package of Fiona CLI plugin commands from Planet Labs for creating
+Unix pipelines which manipulate streams of GeoJSON features.  These commands
+provide a subset of the functionality of more complicated tools such as PostGIS
+or GeoPandas and are intended for use with streams of hundreds to thousands of
+features, where the overhead of JSON serialization between pieces of a pipeline
+is tolerable.
 
 Installation
 ------------
@@ -127,16 +132,15 @@ Support
 For usage help, please use the project discussion forum or email
 developers@planet.com.
 
-If you think you've found a bug (we believe you!), please use the project issue
-tracker.
+If you think you've found a bug, please use the project issue tracker.
 
 Roadmap
 -------
 
 Version 1.0 adds ``filter``, ``map``, and ``reduce`` to Fiona's ``fio`` CLI.
 
-Note that there are no conditional forms in 1.0's expressions. We will likely
-add a `cond` after 1.0.
+Note that there are no conditional forms in 1.0's expressions. The project will
+likely add a `cond` after 1.0.
 
 Contributing
 ------------
@@ -144,11 +148,12 @@ Contributing
 Before 1.0, the project is looking for feedback on the existing commands more
 than it is looking for new commands.
 
-We use ``flake8``, ``mypy``, and ``tox`` for static checks and testing.
+The project uses ``black``, ``flake8``, ``mypy``, and ``tox`` for static checks
+and testing.
 
 .. code-block::
 
-    $ flake8 && mypy && tox
+    $ black src tests && flake8 && mypy && tox
 
 Authors and acknowledgment
 --------------------------

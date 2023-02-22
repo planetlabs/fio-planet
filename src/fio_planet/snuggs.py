@@ -244,8 +244,8 @@ def processList(lst):
     args = []
     kwds = {}
 
-    # We use an iterator instead of implicit iteration so that we can
-    # skip ahead in the keyword argument case.
+    # An iterator is used instead of implicit iteration to allow
+    # skipping ahead in the keyword argument case.
     itemitr = iter(items)
 
     for item in itemitr:
@@ -262,8 +262,8 @@ def processList(lst):
     func = processArg(lst[0])
 
     # list and tuple are two builtins that take a single argument,
-    # whereas args is a list. If we get a KeyError, we will retry
-    # the function call, but without arg unpacking.
+    # whereas args is a list. On a KeyError, the call is retried
+    # without arg unpacking.
     try:
         return func(*args, **kwds)
     except TypeError:
