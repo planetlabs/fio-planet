@@ -10,6 +10,7 @@ jobs:
         python-version: "3.10"
     - name: Run black and flake8
       run: |
-        pip install --upgrade black flake8
+        pip install --upgrade black flake8 mypy
         black src/fio_planet/ tests/
-        flake8 --ignore=E501,W503 src/fio_planet/ tests/
+        flake8
+        mypy
