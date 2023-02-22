@@ -19,7 +19,7 @@ the sequence of numbers.
 .. code-block::
 
     fio cat Wilderness_Patrol_Zones.shp \
-    | fio map '(vertex_count g)' --raw \
+    | fio map 'vertex_count g' --raw \
     | jq -s 'add'
     28915
 
@@ -39,9 +39,9 @@ on the nature of the data, especially the distance between vertices.
 .. code-block::
 
     fio cat Wilderness_Patrol_Zones.shp \
-    | fio reduce '(unary_union c)' \
-    | fio map '(simplify (buffer g 0.001) 0.001)' \
-    | fio map '(vertex_count g)' --raw
+    | fio reduce 'unary_union c' \
+    | fio map 'simplify (buffer g 0.001) 0.001' \
+    | fio map 'vertex_count g' --raw
     274
 
 .. image:: https://user-images.githubusercontent.com/33697/202821086-5bfd4437-3c42-420e-84cf-d3e1287d2d8c.png
@@ -59,9 +59,9 @@ receives.
 .. code-block::
 
     fio cat Wilderness_Patrol_Zones.shp \
-    | fio map '(convex_hull g)' --dump-parts \
-    | fio reduce '(unary_union c)' \
-    | fio map '(vertex_count g)' --raw
+    | fio map 'convex_hull g' --dump-parts \
+    | fio reduce 'unary_union c' \
+    | fio map 'vertex_count g' --raw
     157
 
 .. image:: https://user-images.githubusercontent.com/33697/202820595-491c590c-0f5a-4cdb-89de-7cd2067cbf90.png
@@ -76,9 +76,9 @@ undesirable. Concave hulls inflate your areas less.
 .. code-block::
 
     fio cat Wilderness_Patrol_Zones.shp \
-    | fio map '(concave_hull g 0.4)' --dump-parts \
-    | fio reduce '(unary_union c)' \
-    | fio map '(vertex_count g)' --raw
+    | fio map 'concave_hull g 0.4' --dump-parts \
+    | fio reduce 'unary_union c' \
+    | fio map 'vertex_count g' --raw
     301
 
 .. image:: https://user-images.githubusercontent.com/33697/218189621-446b743e-daba-4e3c-bc24-7ce74771fb8a.png

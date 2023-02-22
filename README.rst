@@ -147,7 +147,7 @@ Roadmap
 Version 1.0 adds ``filter``, ``map``, and ``reduce`` to Fiona's ``fio`` CLI.
 
 Note that there are no conditional forms in 1.0's expressions. The project will
-likely add a `cond` after 1.0.
+likely add a ``cond`` after 1.0.
 
 Contributing
 ------------
