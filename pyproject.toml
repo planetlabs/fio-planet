@@ -3,16 +3,15 @@ requires = ["flit_core>=3.2"]
 build-backend = "flit_core.buildapi"
 
 [project]
-name = "fio-planet"
-version = "1.0dev0"
-description = "Planet Labs plugins for the Fiona CLI"
+name = "fio_planet"
+dynamic = ["version", "description"]
 readme = "README.rst"
 authors = [{name = "Sean Gillies"}]
 maintainers = [
     {name = "Planet Developer Relations", email = "developers@planet.com"}
 ]
 classifiers = [
-    "Development Status :: 1 - Planning",
+    "Development Status :: 3 - Alpha",
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: Apache Software License",
 ]
@@ -30,6 +29,12 @@ dependencies = [
     "shapely>=2.0",
 ]
 
+[tool.flit.sdist]
+exclude = [".github/", ".gitignore"]
+
+# [tool.flit.module]
+# name = "fio_planet"
+
 [project.optional-dependencies]
 test = ["pytest-cov"]
 
@@ -37,9 +42,6 @@ test = ["pytest-cov"]
 map = "fio_planet.cli:map_cmd"
 filter = "fio_planet.cli:filter_cmd"
 reduce = "fio_planet.cli:reduce_cmd"
-
-[tool.flit.module]
-name = "fio_planet"
 
 [tool.mypy]
 mypy_path = "src"
