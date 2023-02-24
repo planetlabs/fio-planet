@@ -58,7 +58,7 @@ from pyparsing import (  # type: ignore
     ParseResults,
     Regex,
     ZeroOrMore,
-    identchars,
+    alphanums,
     pyparsing_common,
 )
 
@@ -185,7 +185,7 @@ def resolve_func(source, loc, toks):
 
 # The look behind assertion is to disambiguate between functions and
 # variables.
-func = Regex(r"(?<=\()[{}]+".format(identchars)).set_parse_action(resolve_func)
+func = Regex(r"(?<=\()[{}]+".format(alphanums + "_")).set_parse_action(resolve_func)
 
 higher_func = oneOf(" ".join(higher_func_map.keys())).set_parse_action(
     lambda source, loc, toks: higher_func_map[toks[0]]
@@ -201,7 +201,7 @@ class KeywordArg:
         self.name = name
 
 
-kwarg = Regex(r":[{}]+".format(identchars)).set_parse_action(
+kwarg = Regex(r":[{}]+".format(alphanums + "_")).set_parse_action(
     lambda source, loc, toks: KeywordArg(toks[0][1:])
 )
 

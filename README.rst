@@ -20,7 +20,7 @@ Installation
 
 .. code-block::
 
-   python -m pip install --user fio-planet@https://github.com/planetlabs/fio-planet.git
+   python -m pip install --user --pre fio-planet
 
 Usage
 -----
