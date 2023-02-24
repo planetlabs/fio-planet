@@ -4,6 +4,7 @@ Changes
 1.0a2 (2023-02-27)
 ------------------
 
+- Add short options -r for raw mode and -n for no input (#18).
 - The expression parser has been fixed so that functions with underscores and
   numbers in their names such as shapely.force_2d can be used (#20).
 

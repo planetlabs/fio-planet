@@ -17,6 +17,7 @@
 from click.testing import CliRunner
 
 from fiona.fio.main import main_group  # type: ignore
+import pytest
 
 
 def test_map_count():
@@ -35,14 +36,15 @@ def test_map_count():
     assert result.output.count('"type": "Point"') == 3
 
 
-def test_reduce_area():
+@pytest.mark.parametrize("raw_opt", ["--raw", "-r"])
+def test_reduce_area(raw_opt):
     """Reduce features to their (raw) area."""
     with open("tests/data/trio.seq") as seq:
         data = seq.read()
 
     runner = CliRunner()
     result = runner.invoke(
-        main_group, ["reduce", "--raw", "area (unary_union c)"], input=data
+        main_group, ["reduce", raw_opt, "area (unary_union c)"], input=data
     )
     assert result.exit_code == 0
     assert 0 < float(result.output) < 1e-5
@@ -91,3 +93,11 @@ def test_filter():
     )
     assert result.exit_code == 0
     assert result.output.count('"type": "Polygon"') == 1
+
+
+@pytest.mark.parametrize("opts", [["--no-input", "--raw"], ["-rn"]])
+def test_map_no_input(opts):
+    runner = CliRunner()
+    result = runner.invoke(main_group, ["map"] + opts + ["(Point 4 43)"])
+    assert result.exit_code == 0
+    assert result.output.count('"type": "Point"') == 1

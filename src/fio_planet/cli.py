@@ -35,12 +35,17 @@ from .features import map_feature, reduce_features
 @click.argument("pipeline")
 @click.option(
     "--raw",
+    "-r",
     is_flag=True,
     default=False,
     help="Print raw result, do not wrap in a GeoJSON Feature.",
 )
 @click.option(
-    "--no-input", is_flag=True, default=False, help="Do not read input from stream."
+    "--no-input",
+    "-n",
+    is_flag=True,
+    default=False,
+    help="Do not read input from stream.",
 )
 @click.option(
     "--dump-parts",
@@ -155,6 +160,7 @@ def filter_cmd(pipeline, use_rs):
 @click.argument("pipeline")
 @click.option(
     "--raw",
+    "-r",
     is_flag=True,
     default=False,
     help="Print raw result, do not wrap in a GeoJSON Feature.",
