@@ -17,7 +17,7 @@
 from click.testing import CliRunner
 
 from fiona.fio.main import main_group  # type: ignore
-import pytest
+import pytest  # type: ignore
 
 
 def test_map_count():
