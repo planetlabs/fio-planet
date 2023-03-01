@@ -44,7 +44,9 @@ def test_reduce_area(raw_opt):
 
     runner = CliRunner()
     result = runner.invoke(
-        main_group, ["reduce", raw_opt, "area (unary_union c)"], input=data
+        main_group,
+        ["reduce", raw_opt, "area (unary_union c) :projected false"],
+        input=data,
     )
     assert result.exit_code == 0
     assert 0 < float(result.output) < 1e-5

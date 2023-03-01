@@ -149,7 +149,7 @@ def test_reduce_union_area():
 
     val = result[0]
     assert isinstance(val, float)
-    assert 0 < val < 1e-5
+    assert 3e4 < val < 4e4
 
 
 def test_reduce_union_geom_type():
@@ -221,4 +221,4 @@ def test_area():
     qgis_ellipsoidal_area = 1117.433937055  # kilometer squared
 
     # We expect no more than a 0.0001 km^2 difference. That's .00001%.
-    assert round(qgis_ellipsoidal_area, 4) == round(area(geom, projected=True) / 1e6, 4)
+    assert round(qgis_ellipsoidal_area, 4) == round(area(geom) / 1e6, 4)

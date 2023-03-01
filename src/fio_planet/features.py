@@ -52,17 +52,18 @@ class FuncMapper(UserDict, Mapping):
             )
 
 
-def area(geom: Union[BaseGeometry, BaseMultipartGeometry], projected=False) -> float:
+def area(geom: Union[BaseGeometry, BaseMultipartGeometry], projected=True) -> float:
     """The cartesian or projected area of a geometry.
 
-    The default is to return a unitless Cartesian area. If reproject is True,
-    the input geometry will be reprojected to the EASE grid system before
-    computing its area and the value will have units of m**2.
+    If reproject is True (the default), the input geometry will be
+    reprojected to the EASE grid system before computing its area and
+    the value will have units of m**2. Otherwise a unitless Cartesian
+    area will be returned.
 
     Parameters
     ----------
     geom : a shapely geometry object
-    projected : bool, optional
+    projected : bool, optional (default: True)
         If True, reproject to EASE grid system with units of m**2. Else
         return a unitless Cartesian area.
 
