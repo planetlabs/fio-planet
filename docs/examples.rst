@@ -15,14 +15,14 @@ a ``(buffer g 0)`` pipeline.
     $ fio cat zip+https://s3.amazonaws.com/fiona-testing/coutwildrnp.zip \
     | fio map '(buffer g 0)'
 
-Or we can replace polygons with their centroids using ``centroid``.
+Polygons can be replaced with their centroids using ``centroid``.
 
 .. code-block::
 
     $ fio cat zip+https://s3.amazonaws.com/fiona-testing/coutwildrnp.zip \
     | fio map '(centroid g)'
 
-Or we can dilate and erode polyons and find those centroids, and combine with
+You can dilate and erode polyons and find those centroids, and combine with
 the program ``jq`` to weed out unwanted features and properties.
 
 .. code-block::
