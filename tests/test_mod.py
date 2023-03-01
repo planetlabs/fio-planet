@@ -18,13 +18,14 @@ import json
 
 import pytest  # type: ignore
 import shapely  # type: ignore
-from shapely.geometry import MultiPoint, Point, mapping  # type: ignore
+from shapely.geometry import MultiPoint, Point, mapping, shape  # type: ignore
 
 from fio_planet.errors import ReduceError
 from fio_planet.features import (  # type: ignore
     map_feature,
     reduce_features,
     vertex_count,
+    area,
     collect,
     dump,
     identity,
@@ -148,7 +149,7 @@ def test_reduce_union_area():
 
     val = result[0]
     assert isinstance(val, float)
-    assert 0 < val < 1e-5
+    assert 3e4 < val < 4e4
 
 
 def test_reduce_union_geom_type():
@@ -207,3 +208,17 @@ def test_identity():
     """Check identity."""
     geom = Point(1.1, 2.2)
     assert geom == identity(geom)
+
+
+def test_area():
+    """Check projected area of RMNP against QGIS."""
+    with open("tests/data/rmnp.geojson", "rb") as f:
+        collection = json.load(f)
+
+    geom = shape(collection["features"][0]["geometry"])
+
+    # QGIS uses a geodesic area computation and WGS84 ellipsoid.
+    qgis_ellipsoidal_area = 1117.433937055  # kilometer squared
+
+    # We expect no more than a 0.0001 km^2 difference. That's .00001%.
+    assert round(qgis_ellipsoidal_area, 4) == round(area(geom) / 1e6, 4)

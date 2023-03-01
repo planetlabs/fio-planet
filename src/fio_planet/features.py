@@ -20,6 +20,7 @@ from collections import UserDict
 import itertools
 from typing import Generator, Iterable, Mapping, Union
 
+from fiona.transform import transform_geom  # type: ignore
 import shapely  # type: ignore
 from shapely.geometry import mapping, shape  # type: ignore
 from shapely.geometry.base import BaseGeometry, BaseMultipartGeometry  # type: ignore
@@ -51,6 +52,36 @@ class FuncMapper(UserDict, Mapping):
             )
 
 
+def area(geom: Union[BaseGeometry, BaseMultipartGeometry], projected=True) -> float:
+    """The cartesian or projected area of a geometry.
+
+    If reproject is True (the default), the input geometry will be
+    reprojected to the EASE grid system before computing its area and
+    the value will have units of m**2. Otherwise a unitless Cartesian
+    area will be returned.
+
+    Parameters
+    ----------
+    geom : a shapely geometry object
+    projected : bool, optional (default: True)
+        If True, reproject to EASE grid system with units of m**2. Else
+        return a unitless Cartesian area.
+
+    Returns
+    -------
+    float
+
+    Notes
+    -----
+    This function shadows Shapely's area().
+
+    """
+    if projected:
+        geom = shape(transform_geom("OGC:CRS84", "EPSG:6933", mapping(geom)))
+
+    return geom.area
+
+
 def collect(geoms: Iterable) -> object:
     """Turn a sequence of geometries into a single GeometryCollection.
 
@@ -67,7 +98,7 @@ def collect(geoms: Iterable) -> object:
     return shapely.GeometryCollection(list(geoms))
 
 
-def dump(shp: Union[BaseGeometry, BaseMultipartGeometry]) -> Generator:
+def dump(geom: Union[BaseGeometry, BaseMultipartGeometry]) -> Generator:
     """Get the individual parts of a geometry object.
 
     If the given geometry object has a single part, e.g., is an
@@ -76,18 +107,17 @@ def dump(shp: Union[BaseGeometry, BaseMultipartGeometry]) -> Generator:
 
     Parameters
     ----------
-    shp : object
-        A shapely geometry object.
+    geom : a shapely geometry object.
 
     Yields
     ------
     A shapely geometry object.
 
     """
-    if hasattr(shp, "geoms"):
-        parts = shp.geoms
+    if hasattr(geom, "geoms"):
+        parts = geom.geoms
     else:
-        parts = [shp]
+        parts = [geom]
     for part in parts:
         yield part
 
@@ -137,6 +167,7 @@ def vertex_count(obj: object) -> int:
 
 
 snuggs.func_map = FuncMapper(
+    area=area,
     collect=collect,
     dump=dump,
     identity=identity,
