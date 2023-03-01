@@ -72,7 +72,7 @@ def area(geom: Union[BaseGeometry, BaseMultipartGeometry], projected=False) -> f
 
     Notes
     -----
-    This function shadow's Shapely's area().
+    This function shadows Shapely's area().
 
     """
     if projected:
