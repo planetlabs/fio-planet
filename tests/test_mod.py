@@ -216,7 +216,9 @@ def test_area():
         collection = json.load(f)
 
     geom = shape(collection["features"][0]["geometry"])
-    qgis_area = 1117.433937055  # kilometer squared
+
+    # QGIS uses a geodesic area computation and WGS84 ellipsoid.
+    qgis_ellipsoidal_area = 1117.433937055  # kilometer squared
 
     # We expect no more than a 0.0001 km^2 difference. That's .00001%.
-    assert round(qgis_area, 4) == round(area(geom, projected=True) / 1e6, 4)
+    assert round(qgis_ellipsoidal_area, 4) == round(area(geom, projected=True) / 1e6, 4)
