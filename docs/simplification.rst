@@ -5,7 +5,8 @@ Here are a few examples related to the Planet Developers Blog deep dive into
 `simplifying areas of interest
 <https://developers.planet.com/blog/2022/Dec/15/simplifying-your-complex-area-of-interest-a-planet-developers-deep-dive/>`__.
 The examples use a 25-feature shapefile. You can get it from `rmnp.zip
-<https://github.com/planetlabs/fio-geomod/files/10045442/rmnp.zip>`__.
+<https://github.com/planetlabs/fio-planet/files/10045442/rmnp.zip>`__ or access
+it in a streaming fashion as shown in the examples below.
 
 Counting vertices in a feature collection
 -----------------------------------------
@@ -18,7 +19,7 @@ the sequence of numbers.
 
 .. code-block::
 
-    fio cat Wilderness_Patrol_Zones.shp \
+    fio cat zip+https://github.com/planetlabs/fio-planet/files/10045442/rmnp.zip \
     | fio map 'vertex_count g' --raw \
     | jq -s 'add'
     28915
@@ -38,7 +39,7 @@ on the nature of the data, especially the distance between vertices.
 
 .. code-block::
 
-    fio cat Wilderness_Patrol_Zones.shp \
+    fio cat zip+https://github.com/planetlabs/fio-planet/files/10045442/rmnp.zip \
     | fio reduce 'unary_union c' \
     | fio map 'simplify (buffer g 0.001) 0.001' \
     | fio map 'vertex_count g' --raw
@@ -58,7 +59,7 @@ receives.
 
 .. code-block::
 
-    fio cat Wilderness_Patrol_Zones.shp \
+    fio cat zip+https://github.com/planetlabs/fio-planet/files/10045442/rmnp.zip \
     | fio map 'convex_hull g' --dump-parts \
     | fio reduce 'unary_union c' \
     | fio map 'vertex_count g' --raw
@@ -75,7 +76,7 @@ undesirable. Concave hulls inflate your areas less.
 
 .. code-block::
 
-    fio cat Wilderness_Patrol_Zones.shp \
+    fio cat zip+https://github.com/planetlabs/fio-planet/files/10045442/rmnp.zip \
     | fio map 'concave_hull g 0.4' --dump-parts \
     | fio reduce 'unary_union c' \
     | fio map 'vertex_count g' --raw
