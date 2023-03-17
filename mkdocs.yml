@@ -1,0 +1,74 @@
+site_name: fio-planet
+site_url: https://github.com/planetlabs/fio-planet
+site_author: https://developers.planet.com
+site_description: >-
+  A package of Fiona CLI plugin commands from Planet Labs PBC.
+repo_name: planetlabs/fio-planet
+repo_url: https://github.com/planetlabs/fio-planet
+edit_uri: ""
+
+theme:
+  name: 'material'
+  logo: 'images/Planet_primarymark_RGB_White.png'
+  favicon: 'images/logo.svg'
+  custom_dir: 'docs/custom_theme/'
+  features:
+    - navigation.tabs
+    # - navigation.instant # Not compatible with i18n plugin
+    - navigation.expand
+    - navigation.indexes
+    - navigation.top
+    - navigation.sections
+    - navigation.tracking
+    - search.suggest
+    - search.highlight
+    - toc.follow
+    - toc.integrate 
+  palette:
+    - scheme: default
+      primary: #007f99
+      toggle:
+        icon: octicons/moon-24
+        name: Switch to dark mode
+    - scheme: slate
+      primary: #004352
+      toggle: 
+        icon: octicons/sun-24
+        name: Switch to light mode
+
+extra:
+  company:
+    name: "Planet Labs PBC"
+  product:
+    name: "Fio CLI plugins from Planet"
+
+extra_css:
+  - stylesheets/extra.css
+
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          rendering:
+            show_root_heading: true
+          selection:
+            inherited_members: true
+            filters:
+              - "!^_"  # exlude all members starting with _
+              - "^__init__$"  # but always include __init__ modules and methods
+      watch:
+        - src/fio_planet
+        - docs/custom_theme/
+
+nav:
+  - "Home": 'index.md'
+  - "Topics": 'topics'
+
+markdown_extensions:
+  - pymdownx.highlight
+  - pymdownx.superfences
+  - mkdocs-click
+  - admonition
+  - toc:
+      permalink: True

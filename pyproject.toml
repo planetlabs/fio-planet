@@ -5,7 +5,7 @@ build-backend = "flit_core.buildapi"
 [project]
 name = "fio_planet"
 dynamic = ["version", "description"]
-readme = "README.rst"
+readme = "README.md"
 authors = [{name = "Sean Gillies"}]
 maintainers = [
     {name = "Planet Developer Relations", email = "developers@planet.com"}
@@ -37,6 +37,7 @@ exclude = [".github/", ".gitignore"]
 
 [project.optional-dependencies]
 test = ["pytest-cov"]
+docs = ["mkdocs", "mkdocs-material", "mkdocs-click", "mkdocstrings"]
 
 [project.entry-points."fiona.fio_commands"]
 map = "fio_planet.cli:map_cmd"
