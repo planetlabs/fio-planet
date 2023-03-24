@@ -17,6 +17,7 @@
 """Operations on GeoJSON feature and geometry objects."""
 
 from collections import UserDict
+from functools import wraps
 import itertools
 from typing import Generator, Iterable, Mapping, Union
 
@@ -52,74 +53,6 @@ class FuncMapper(UserDict, Mapping):
             )
 
 
-def area(geom: Union[BaseGeometry, BaseMultipartGeometry], projected=True) -> float:
-    """The cartesian or projected area of a geometry.
-
-    If reproject is True (the default), the input geometry will be
-    reprojected to the EASE grid system before computing its area and
-    the value will have units of m**2. Otherwise a unitless Cartesian
-    area will be returned.
-
-    Parameters
-    ----------
-    geom : a shapely geometry object
-    projected : bool, optional (default: True)
-        If True, reproject to EASE grid system with units of m**2. Else
-        return a unitless Cartesian area.
-
-    Returns
-    -------
-    float
-
-    Notes
-    -----
-    This function shadows Shapely's area().
-
-    """
-    if projected:
-        geom = shape(transform_geom("OGC:CRS84", "EPSG:6933", mapping(geom)))
-
-    return geom.area
-
-
-def buffer(
-    geom: Union[BaseGeometry, BaseMultipartGeometry],
-    distance: float,
-    projected=True,
-    **kwargs,
-) -> Union[BaseGeometry, BaseMultipartGeometry]:
-    """The cartesian or projected distance buffer of a geometry.
-
-    If reproject is True (the default), the input geometry will be
-    reprojected to the EASE grid system before computing its buffer and
-    the distance and mitre_limit values will have units of meters.
-    Otherwise unitless Cartesian values will be assumed.
-
-    Parameters
-    ----------
-    geom : a shapely geometry object
-    distance : float
-        If projected is True, the units are meters.
-    projected : bool, optional (default: True)
-        If True, reproject to EASE grid system.
-    kwargs : dict
-        The other keyword arguments of shapely.buffer().
-
-    Returns
-    -------
-    A new Shapely geometry object
-
-    Notes
-    -----
-    This function shadows Shapely's buffer().
-
-    """
-    if projected:
-        geom = shape(transform_geom("OGC:CRS84", "EPSG:6933", mapping(geom)))
-
-    return geom.buffer(distance, **kwargs)
-
-
 def collect(geoms: Iterable) -> object:
     """Turn a sequence of geometries into a single GeometryCollection.
 
@@ -134,42 +67,6 @@ def collect(geoms: Iterable) -> object:
 
     """
     return shapely.GeometryCollection(list(geoms))
-
-
-def distance(
-    geom1: Union[BaseGeometry, BaseMultipartGeometry],
-    geom2: Union[BaseGeometry, BaseMultipartGeometry],
-    projected=True,
-) -> float:
-    """The cartesian or projected distance between two geometries.
-
-    If reproject is True (the default), the input geometries will be
-    reprojected to the EASE grid system before computing distance and
-    the value will have units of meters. Otherwise a unitless Cartesian
-    distance will be returned.
-
-    Parameters
-    ----------
-    geom1 : a shapely geometry object
-    geom2 : a shapely geometry object
-    projected : bool, optional (default: True)
-        If True, reproject to EASE grid system with units of m**2. Else
-        return a unitless Cartesian area.
-
-    Returns
-    -------
-    float
-
-    Notes
-    -----
-    This function shadows Shapely's distance().
-
-    """
-    if projected:
-        geom1 = shape(transform_geom("OGC:CRS84", "EPSG:6933", mapping(geom1)))
-        geom2 = shape(transform_geom("OGC:CRS84", "EPSG:6933", mapping(geom2)))
-
-    return geom1.distance(geom2)
 
 
 def dump(geom: Union[BaseGeometry, BaseMultipartGeometry]) -> Generator:
@@ -206,43 +103,12 @@ def identity(obj: object) -> object:
     ----------
     obj : objeect
 
-
     Returns
     -------
     obj
 
     """
     return obj
-
-
-def length(geom: Union[BaseGeometry, BaseMultipartGeometry], projected=True) -> float:
-    """The cartesian or projected length of a geometry.
-
-    If reproject is True (the default), the input geometry will be
-    reprojected to the EASE grid system before computing its length and
-    the value will have units of meters. Otherwise a unitless Cartesian
-    length will be returned.
-
-    Parameters
-    ----------
-    geom : a shapely geometry object
-    projected : bool, optional (default: True)
-        If True, reproject to EASE grid system and give a length with
-        units of meters. Else return a unitless length.
-
-    Returns
-    -------
-    float
-
-    Notes
-    -----
-    This function shadows Shapely's length().
-
-    """
-    if projected:
-        geom = shape(transform_geom("OGC:CRS84", "EPSG:6933", mapping(geom)))
-
-    return geom.length
 
 
 def vertex_count(obj: object) -> int:
@@ -270,6 +136,91 @@ def vertex_count(obj: object) -> int:
         return len(shp.coords)
 
 
+def binary_projectable_property_wrapper(func):
+    """Project func's geometry args before computing a property.
+
+    Parameters
+    ----------
+    func : callable
+        Signature is func(geom1, geom2, *args, **kwargs)
+
+    Returns
+    -------
+    callable
+        Signature is func(geom1, geom2, projected=True, *args, **kwargs)
+
+    """
+
+    @wraps(func)
+    def wrapper(geom1, geom2, *args, projected=True, **kwargs):
+        if projected:
+            geom1 = shape(transform_geom("OGC:CRS84", "EPSG:6933", mapping(geom1)))
+            geom2 = shape(transform_geom("OGC:CRS84", "EPSG:6933", mapping(geom2)))
+
+        return func(geom1, geom2, *args, **kwargs)
+
+    return wrapper
+
+
+def unary_projectable_property_wrapper(func):
+    """Project func's geometry arg before computing a property.
+
+    Parameters
+    ----------
+    func : callable
+        Signature is func(geom1, *args, **kwargs)
+
+    Returns
+    -------
+    callable
+        Signature is func(geom1, projected=True, *args, **kwargs)
+
+    """
+
+    @wraps(func)
+    def wrapper(geom, *args, projected=True, **kwargs):
+        if projected:
+            geom = shape(transform_geom("OGC:CRS84", "EPSG:6933", mapping(geom)))
+
+        return func(geom, *args, **kwargs)
+
+    return wrapper
+
+
+def unary_projectable_constructive_wrapper(func):
+    """Project func's geometry arg before constructing a new geometry.
+
+    Parameters
+    ----------
+    func : callable
+        Signature is func(geom1, *args, **kwargs)
+
+    Returns
+    -------
+    callable
+        Signature is func(geom1, projected=True, *args, **kwargs)
+
+    """
+
+    @wraps(func)
+    def wrapper(geom, *args, projected=True, **kwargs):
+        if projected:
+            geom = shape(transform_geom("OGC:CRS84", "EPSG:6933", mapping(geom)))
+            product = func(geom, *args, **kwargs)
+            return shape(transform_geom("EPSG:6933", "OGC:CRS84", mapping(product)))
+        else:
+            return func(geom, *args, **kwargs)
+
+    return wrapper
+
+
+area = unary_projectable_property_wrapper(shapely.area)
+buffer = unary_projectable_constructive_wrapper(shapely.buffer)
+distance = binary_projectable_property_wrapper(shapely.distance)
+set_precision = unary_projectable_constructive_wrapper(shapely.set_precision)
+simplify = unary_projectable_constructive_wrapper(shapely.simplify)
+length = unary_projectable_property_wrapper(shapely.length)
+
 snuggs.func_map = FuncMapper(
     area=area,
     buffer=buffer,
@@ -278,6 +229,8 @@ snuggs.func_map = FuncMapper(
     dump=dump,
     identity=identity,
     length=length,
+    simplify=simplify,
+    set_precision=set_precision,
     vertex_count=vertex_count,
     **{
         k: getattr(itertools, k)

@@ -4,8 +4,8 @@ Changes
 1.0a3 (2023-03-24)
 ------------------
 
-- Add builtin buffer, distance, and length functions which allow projected
-  computation of these values (#).
+- Add builtin buffer, distance, length, simplify, and set_precision functions
+  which allow projected computation of these values (#27).
 
 1.0a2 (2023-03-01)
 ------------------

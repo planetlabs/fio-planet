@@ -56,7 +56,7 @@ def test_modulate_complex():
     feat = collection["features"][0]
     results = list(
         map_feature(
-            f"simplify (buffer g (* 0.1 2) :{bufkwd} (- 4 3)) 0.001 :preserve_topology false",
+            f"simplify (buffer g (* 0.1 2) :projected false :{bufkwd} (- 4 3)) 0.001 :projected false :preserve_topology false",
             feat,
         )
     )
@@ -241,15 +241,17 @@ def test_distance(kwargs, exp_distance):
 @pytest.mark.parametrize(
     ["kwargs", "distance", "exp_area"],
     [
-        ({}, 1.0e4, 314e6),
-        ({"projected": True}, 10000.0, 314e6),
-        ({"projected": False}, 0.1, 0.0314),
+        ({}, 1.0e4, 312e6),
+        ({"projected": True}, 10000.0, 312e6),
+        ({"projected": False}, 0.1, 0.0312),
     ],
 )
 def test_buffer(kwargs, distance, exp_area):
-    """Check area of a point buffered by 10km, should be ~314 km2."""
+    """Check area of a point buffered by 10km using 8 quadrant segments, should be ~312 km2."""
     # float(f"{x:.3g}") is used to round x to 3 significant figures.
-    assert exp_area == float(f"{buffer(Point(0, 0), distance, **kwargs).area:.3g}")
+    assert exp_area == float(
+        f"{area(buffer(Point(0, 0), distance, **kwargs), **kwargs):.3g}"
+    )
 
 
 @pytest.mark.parametrize(
