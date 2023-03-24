@@ -32,6 +32,9 @@ from fio_planet.features import (  # type: ignore
     dump,
     identity,
     length,
+    unary_projectable_property_wrapper,
+    unary_projectable_constructive_wrapper,
+    binary_projectable_property_wrapper,
 )
 
 
@@ -263,3 +266,79 @@ def test_length(kwargs, exp_length):
     assert round(exp_length, 4) == round(
         length(LineString([(0, 0), (0.1, 0)]), **kwargs), 4
     )
+
+
+@pytest.mark.parametrize(
+    ["in_xy", "exp_xy", "kwargs"],
+    [
+        ((0.1, 0.0), (9648.628, 0.0), {}),
+        ((0.1, 0.0), (9648.628, 0.0), {"projected": True}),
+        ((0.1, 0.0), (0.1, 0.0), {"projected": False}),
+    ],
+)
+def test_unary_property_wrapper(in_xy, exp_xy, kwargs):
+    """Correctly wraps a function like shapely.area."""
+
+    def func(geom, *args, **kwargs):
+        """Echoes its input."""
+        return geom, args, kwargs
+
+    wrapper = unary_projectable_property_wrapper(func)
+    assert wrapper.__doc__ == "Echoes its input."
+    assert wrapper.__name__ == "func"
+    g, *rest = wrapper(Point(*in_xy), "hello", this=True, **kwargs)
+    assert rest == [("hello",), {"this": True}]
+    assert round(g.x, 4) == round(exp_xy[0], 4)
+    assert round(g.y, 4) == round(exp_xy[1], 4)
+
+
+@pytest.mark.parametrize(
+    ["in_xy", "exp_xy", "kwargs"],
+    [
+        ((0.1, 0.0), (9648.628, 0.0), {}),
+        ((0.1, 0.0), (9648.628, 0.0), {"projected": True}),
+        ((0.1, 0.0), (0.1, 0.0), {"projected": False}),
+    ],
+)
+def test_unary_projectable_constructive_wrapper(in_xy, exp_xy, kwargs):
+    """Correctly wraps a function like shapely.buffer."""
+
+    def func(geom, required, this=False):
+        """Echoes its input geom."""
+        assert round(geom.x, 4) == round(exp_xy[0], 4)
+        assert round(geom.y, 4) == round(exp_xy[1], 4)
+        assert this is True
+        return geom
+
+    wrapper = unary_projectable_constructive_wrapper(func)
+    assert wrapper.__doc__ == "Echoes its input geom."
+    assert wrapper.__name__ == "func"
+    g = wrapper(Point(*in_xy), "hello", this=True, **kwargs)
+    assert round(g.x, 4) == round(in_xy[0], 4)
+    assert round(g.y, 4) == round(in_xy[1], 4)
+
+
+@pytest.mark.parametrize(
+    ["in_xy", "exp_xy", "kwargs"],
+    [
+        ((0.1, 0.0), (9648.628, 0.0), {}),
+        ((0.1, 0.0), (9648.628, 0.0), {"projected": True}),
+        ((0.1, 0.0), (0.1, 0.0), {"projected": False}),
+    ],
+)
+def test_binary_projectable_property_wrapper(in_xy, exp_xy, kwargs):
+    """Correctly wraps a function like shapely.distance."""
+
+    def func(geom1, geom2, *args, **kwargs):
+        """Echoes its inputs."""
+        return geom1, geom2, args, kwargs
+
+    wrapper = binary_projectable_property_wrapper(func)
+    assert wrapper.__doc__ == "Echoes its inputs."
+    assert wrapper.__name__ == "func"
+    g1, g2, *rest = wrapper(Point(*in_xy), Point(*in_xy), "hello", this=True, **kwargs)
+    assert rest == [("hello",), {"this": True}]
+    assert round(g1.x, 4) == round(exp_xy[0], 4)
+    assert round(g1.y, 4) == round(exp_xy[1], 4)
+    assert round(g2.x, 4) == round(exp_xy[0], 4)
+    assert round(g2.y, 4) == round(exp_xy[1], 4)
