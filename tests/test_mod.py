@@ -18,7 +18,7 @@ import json
 
 import pytest  # type: ignore
 import shapely  # type: ignore
-from shapely.geometry import MultiPoint, Point, mapping, shape  # type: ignore
+from shapely.geometry import LineString, MultiPoint, Point, mapping, shape  # type: ignore
 
 from fio_planet.errors import ReduceError
 from fio_planet.features import (  # type: ignore
@@ -26,9 +26,12 @@ from fio_planet.features import (  # type: ignore
     reduce_features,
     vertex_count,
     area,
+    buffer,
     collect,
+    distance,
     dump,
     identity,
+    length,
 )
 
 
@@ -187,21 +190,21 @@ def test_dump_eval(obj, count):
 def test_collect():
     """Collect two points."""
     geom = collect((Point(0, 0), Point(1, 1)))
-    assert geom.type == "GeometryCollection"
+    assert geom.geom_type == "GeometryCollection"
 
 
 def test_dump():
     """Dump a point."""
     geoms = list(dump(Point(0, 0)))
     assert len(geoms) == 1
-    assert geoms[0].type == "Point"
+    assert geoms[0].geom_type == "Point"
 
 
 def test_dump_multi():
     """Dump two points."""
     geoms = list(dump(MultiPoint([(0, 0), (1, 1)])))
     assert len(geoms) == 2
-    assert all(g.type == "Point" for g in geoms)
+    assert all(g.geom_type == "Point" for g in geoms)
 
 
 def test_identity():
@@ -222,3 +225,39 @@ def test_area():
 
     # We expect no more than a 0.0001 km^2 difference. That's .00001%.
     assert round(qgis_ellipsoidal_area, 4) == round(area(geom) / 1e6, 4)
+
+
+@pytest.mark.parametrize(
+    ["kwargs", "exp_distance"],
+    [({}, 9648.6280), ({"projected": True}, 9648.6280), ({"projected": False}, 0.1)],
+)
+def test_distance(kwargs, exp_distance):
+    """Distance measured properly."""
+    assert round(exp_distance, 4) == round(
+        distance(Point(0, 0), Point(0.1, 0), **kwargs), 4
+    )
+
+
+@pytest.mark.parametrize(
+    ["kwargs", "distance", "exp_area"],
+    [
+        ({}, 1.0e4, 314e6),
+        ({"projected": True}, 10000.0, 314e6),
+        ({"projected": False}, 0.1, 0.0314),
+    ],
+)
+def test_buffer(kwargs, distance, exp_area):
+    """Check area of a point buffered by 10km, should be ~314 km2."""
+    # float(f"{x:.3g}") is used to round x to 3 significant figures.
+    assert exp_area == float(f"{buffer(Point(0, 0), distance, **kwargs).area:.3g}")
+
+
+@pytest.mark.parametrize(
+    ["kwargs", "exp_length"],
+    [({}, 9648.6280), ({"projected": True}, 9648.6280), ({"projected": False}, 0.1)],
+)
+def test_length(kwargs, exp_length):
+    """Length measured properly."""
+    assert round(exp_length, 4) == round(
+        length(LineString([(0, 0), (0.1, 0)]), **kwargs), 4
+    )

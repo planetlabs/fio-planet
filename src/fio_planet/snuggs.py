@@ -213,8 +213,8 @@ operand = (
     | nil
     | var
     | kwarg
-    | pyparsing_common.real
     | pyparsing_common.sci_real
+    | pyparsing_common.real
     | pyparsing_common.signed_integer
     | string
 )

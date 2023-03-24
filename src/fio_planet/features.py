@@ -82,6 +82,44 @@ def area(geom: Union[BaseGeometry, BaseMultipartGeometry], projected=True) -> fl
     return geom.area
 
 
+def buffer(
+    geom: Union[BaseGeometry, BaseMultipartGeometry],
+    distance: float,
+    projected=True,
+    **kwargs,
+) -> Union[BaseGeometry, BaseMultipartGeometry]:
+    """The cartesian or projected distance buffer of a geometry.
+
+    If reproject is True (the default), the input geometry will be
+    reprojected to the EASE grid system before computing its buffer and
+    the distance and mitre_limit values will have units of meters.
+    Otherwise unitless Cartesian values will be assumed.
+
+    Parameters
+    ----------
+    geom : a shapely geometry object
+    distance : float
+        If projected is True, the units are meters.
+    projected : bool, optional (default: True)
+        If True, reproject to EASE grid system.
+    kwargs : dict
+        The other keyword arguments of shapely.buffer().
+
+    Returns
+    -------
+    A new Shapely geometry object
+
+    Notes
+    -----
+    This function shadows Shapely's buffer().
+
+    """
+    if projected:
+        geom = shape(transform_geom("OGC:CRS84", "EPSG:6933", mapping(geom)))
+
+    return geom.buffer(distance, **kwargs)
+
+
 def collect(geoms: Iterable) -> object:
     """Turn a sequence of geometries into a single GeometryCollection.
 
@@ -96,6 +134,42 @@ def collect(geoms: Iterable) -> object:
 
     """
     return shapely.GeometryCollection(list(geoms))
+
+
+def distance(
+    geom1: Union[BaseGeometry, BaseMultipartGeometry],
+    geom2: Union[BaseGeometry, BaseMultipartGeometry],
+    projected=True,
+) -> float:
+    """The cartesian or projected distance between two geometries.
+
+    If reproject is True (the default), the input geometries will be
+    reprojected to the EASE grid system before computing distance and
+    the value will have units of meters. Otherwise a unitless Cartesian
+    distance will be returned.
+
+    Parameters
+    ----------
+    geom1 : a shapely geometry object
+    geom2 : a shapely geometry object
+    projected : bool, optional (default: True)
+        If True, reproject to EASE grid system with units of m**2. Else
+        return a unitless Cartesian area.
+
+    Returns
+    -------
+    float
+
+    Notes
+    -----
+    This function shadows Shapely's distance().
+
+    """
+    if projected:
+        geom1 = shape(transform_geom("OGC:CRS84", "EPSG:6933", mapping(geom1)))
+        geom2 = shape(transform_geom("OGC:CRS84", "EPSG:6933", mapping(geom2)))
+
+    return geom1.distance(geom2)
 
 
 def dump(geom: Union[BaseGeometry, BaseMultipartGeometry]) -> Generator:
@@ -141,6 +215,36 @@ def identity(obj: object) -> object:
     return obj
 
 
+def length(geom: Union[BaseGeometry, BaseMultipartGeometry], projected=True) -> float:
+    """The cartesian or projected length of a geometry.
+
+    If reproject is True (the default), the input geometry will be
+    reprojected to the EASE grid system before computing its length and
+    the value will have units of meters. Otherwise a unitless Cartesian
+    length will be returned.
+
+    Parameters
+    ----------
+    geom : a shapely geometry object
+    projected : bool, optional (default: True)
+        If True, reproject to EASE grid system and give a length with
+        units of meters. Else return a unitless length.
+
+    Returns
+    -------
+    float
+
+    Notes
+    -----
+    This function shadows Shapely's length().
+
+    """
+    if projected:
+        geom = shape(transform_geom("OGC:CRS84", "EPSG:6933", mapping(geom)))
+
+    return geom.length
+
+
 def vertex_count(obj: object) -> int:
     """Count the vertices of a GeoJSON-like geometry object.
 
@@ -168,9 +272,12 @@ def vertex_count(obj: object) -> int:
 
 snuggs.func_map = FuncMapper(
     area=area,
+    buffer=buffer,
     collect=collect,
+    distance=distance,
     dump=dump,
     identity=identity,
+    length=length,
     vertex_count=vertex_count,
     **{
         k: getattr(itertools, k)
