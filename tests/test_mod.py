@@ -18,7 +18,7 @@ import json
 
 import pytest  # type: ignore
 import shapely  # type: ignore
-from shapely.geometry import MultiPoint, Point, mapping, shape  # type: ignore
+from shapely.geometry import LineString, MultiPoint, Point, mapping, shape  # type: ignore
 
 from fio_planet.errors import ReduceError
 from fio_planet.features import (  # type: ignore
@@ -26,9 +26,15 @@ from fio_planet.features import (  # type: ignore
     reduce_features,
     vertex_count,
     area,
+    buffer,
     collect,
+    distance,
     dump,
     identity,
+    length,
+    unary_projectable_property_wrapper,
+    unary_projectable_constructive_wrapper,
+    binary_projectable_property_wrapper,
 )
 
 
@@ -53,7 +59,7 @@ def test_modulate_complex():
     feat = collection["features"][0]
     results = list(
         map_feature(
-            f"simplify (buffer g (* 0.1 2) :{bufkwd} (- 4 3)) 0.001 :preserve_topology false",
+            f"simplify (buffer g (* 0.1 2) :projected false :{bufkwd} (- 4 3)) 0.001 :projected false :preserve_topology false",
             feat,
         )
     )
@@ -187,21 +193,21 @@ def test_dump_eval(obj, count):
 def test_collect():
     """Collect two points."""
     geom = collect((Point(0, 0), Point(1, 1)))
-    assert geom.type == "GeometryCollection"
+    assert geom.geom_type == "GeometryCollection"
 
 
 def test_dump():
     """Dump a point."""
     geoms = list(dump(Point(0, 0)))
     assert len(geoms) == 1
-    assert geoms[0].type == "Point"
+    assert geoms[0].geom_type == "Point"
 
 
 def test_dump_multi():
     """Dump two points."""
     geoms = list(dump(MultiPoint([(0, 0), (1, 1)])))
     assert len(geoms) == 2
-    assert all(g.type == "Point" for g in geoms)
+    assert all(g.geom_type == "Point" for g in geoms)
 
 
 def test_identity():
@@ -222,3 +228,117 @@ def test_area():
 
     # We expect no more than a 0.0001 km^2 difference. That's .00001%.
     assert round(qgis_ellipsoidal_area, 4) == round(area(geom) / 1e6, 4)
+
+
+@pytest.mark.parametrize(
+    ["kwargs", "exp_distance"],
+    [({}, 9648.6280), ({"projected": True}, 9648.6280), ({"projected": False}, 0.1)],
+)
+def test_distance(kwargs, exp_distance):
+    """Distance measured properly."""
+    assert round(exp_distance, 4) == round(
+        distance(Point(0, 0), Point(0.1, 0), **kwargs), 4
+    )
+
+
+@pytest.mark.parametrize(
+    ["kwargs", "distance", "exp_area"],
+    [
+        ({}, 1.0e4, 312e6),
+        ({"projected": True}, 10000.0, 312e6),
+        ({"projected": False}, 0.1, 0.0312),
+    ],
+)
+def test_buffer(kwargs, distance, exp_area):
+    """Check area of a point buffered by 10km using 8 quadrant segments, should be ~312 km2."""
+    # float(f"{x:.3g}") is used to round x to 3 significant figures.
+    assert exp_area == float(
+        f"{area(buffer(Point(0, 0), distance, **kwargs), **kwargs):.3g}"
+    )
+
+
+@pytest.mark.parametrize(
+    ["kwargs", "exp_length"],
+    [({}, 9648.6280), ({"projected": True}, 9648.6280), ({"projected": False}, 0.1)],
+)
+def test_length(kwargs, exp_length):
+    """Length measured properly."""
+    assert round(exp_length, 4) == round(
+        length(LineString([(0, 0), (0.1, 0)]), **kwargs), 4
+    )
+
+
+@pytest.mark.parametrize(
+    ["in_xy", "exp_xy", "kwargs"],
+    [
+        ((0.1, 0.0), (9648.628, 0.0), {}),
+        ((0.1, 0.0), (9648.628, 0.0), {"projected": True}),
+        ((0.1, 0.0), (0.1, 0.0), {"projected": False}),
+    ],
+)
+def test_unary_property_wrapper(in_xy, exp_xy, kwargs):
+    """Correctly wraps a function like shapely.area."""
+
+    def func(geom, *args, **kwargs):
+        """Echoes its input."""
+        return geom, args, kwargs
+
+    wrapper = unary_projectable_property_wrapper(func)
+    assert wrapper.__doc__ == "Echoes its input."
+    assert wrapper.__name__ == "func"
+    g, *rest = wrapper(Point(*in_xy), "hello", this=True, **kwargs)
+    assert rest == [("hello",), {"this": True}]
+    assert round(g.x, 4) == round(exp_xy[0], 4)
+    assert round(g.y, 4) == round(exp_xy[1], 4)
+
+
+@pytest.mark.parametrize(
+    ["in_xy", "exp_xy", "kwargs"],
+    [
+        ((0.1, 0.0), (9648.628, 0.0), {}),
+        ((0.1, 0.0), (9648.628, 0.0), {"projected": True}),
+        ((0.1, 0.0), (0.1, 0.0), {"projected": False}),
+    ],
+)
+def test_unary_projectable_constructive_wrapper(in_xy, exp_xy, kwargs):
+    """Correctly wraps a function like shapely.buffer."""
+
+    def func(geom, required, this=False):
+        """Echoes its input geom."""
+        assert round(geom.x, 4) == round(exp_xy[0], 4)
+        assert round(geom.y, 4) == round(exp_xy[1], 4)
+        assert this is True
+        return geom
+
+    wrapper = unary_projectable_constructive_wrapper(func)
+    assert wrapper.__doc__ == "Echoes its input geom."
+    assert wrapper.__name__ == "func"
+    g = wrapper(Point(*in_xy), "hello", this=True, **kwargs)
+    assert round(g.x, 4) == round(in_xy[0], 4)
+    assert round(g.y, 4) == round(in_xy[1], 4)
+
+
+@pytest.mark.parametrize(
+    ["in_xy", "exp_xy", "kwargs"],
+    [
+        ((0.1, 0.0), (9648.628, 0.0), {}),
+        ((0.1, 0.0), (9648.628, 0.0), {"projected": True}),
+        ((0.1, 0.0), (0.1, 0.0), {"projected": False}),
+    ],
+)
+def test_binary_projectable_property_wrapper(in_xy, exp_xy, kwargs):
+    """Correctly wraps a function like shapely.distance."""
+
+    def func(geom1, geom2, *args, **kwargs):
+        """Echoes its inputs."""
+        return geom1, geom2, args, kwargs
+
+    wrapper = binary_projectable_property_wrapper(func)
+    assert wrapper.__doc__ == "Echoes its inputs."
+    assert wrapper.__name__ == "func"
+    g1, g2, *rest = wrapper(Point(*in_xy), Point(*in_xy), "hello", this=True, **kwargs)
+    assert rest == [("hello",), {"this": True}]
+    assert round(g1.x, 4) == round(exp_xy[0], 4)
+    assert round(g1.y, 4) == round(exp_xy[1], 4)
+    assert round(g2.x, 4) == round(exp_xy[0], 4)
+    assert round(g2.y, 4) == round(exp_xy[1], 4)

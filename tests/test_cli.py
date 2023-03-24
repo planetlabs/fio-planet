@@ -30,7 +30,6 @@ def test_map_count():
         main_group,
         ["map", "centroid (buffer g 1.0)"],
         input=data,
-        catch_exceptions=False,
     )
     assert result.exit_code == 0
     assert result.output.count('"type": "Point"') == 3
@@ -91,7 +90,10 @@ def test_filter():
 
     runner = CliRunner()
     result = runner.invoke(
-        main_group, ["filter", "< (distance g (Point 4 43)) 0.625"], input=data
+        main_group,
+        ["filter", "< (distance g (Point 4 43)) 62.5E3"],
+        input=data,
+        catch_exceptions=False,
     )
     assert result.exit_code == 0
     assert result.output.count('"type": "Polygon"') == 1

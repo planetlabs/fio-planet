@@ -17,6 +17,7 @@
 """Operations on GeoJSON feature and geometry objects."""
 
 from collections import UserDict
+from functools import wraps
 import itertools
 from typing import Generator, Iterable, Mapping, Union
 
@@ -50,36 +51,6 @@ class FuncMapper(UserDict, Mapping):
                 if callable(getattr(g, key))
                 else getattr(g, key)
             )
-
-
-def area(geom: Union[BaseGeometry, BaseMultipartGeometry], projected=True) -> float:
-    """The cartesian or projected area of a geometry.
-
-    If reproject is True (the default), the input geometry will be
-    reprojected to the EASE grid system before computing its area and
-    the value will have units of m**2. Otherwise a unitless Cartesian
-    area will be returned.
-
-    Parameters
-    ----------
-    geom : a shapely geometry object
-    projected : bool, optional (default: True)
-        If True, reproject to EASE grid system with units of m**2. Else
-        return a unitless Cartesian area.
-
-    Returns
-    -------
-    float
-
-    Notes
-    -----
-    This function shadows Shapely's area().
-
-    """
-    if projected:
-        geom = shape(transform_geom("OGC:CRS84", "EPSG:6933", mapping(geom)))
-
-    return geom.area
 
 
 def collect(geoms: Iterable) -> object:
@@ -132,7 +103,6 @@ def identity(obj: object) -> object:
     ----------
     obj : objeect
 
-
     Returns
     -------
     obj
@@ -166,11 +136,101 @@ def vertex_count(obj: object) -> int:
         return len(shp.coords)
 
 
+def binary_projectable_property_wrapper(func):
+    """Project func's geometry args before computing a property.
+
+    Parameters
+    ----------
+    func : callable
+        Signature is func(geom1, geom2, *args, **kwargs)
+
+    Returns
+    -------
+    callable
+        Signature is func(geom1, geom2, projected=True, *args, **kwargs)
+
+    """
+
+    @wraps(func)
+    def wrapper(geom1, geom2, *args, projected=True, **kwargs):
+        if projected:
+            geom1 = shape(transform_geom("OGC:CRS84", "EPSG:6933", mapping(geom1)))
+            geom2 = shape(transform_geom("OGC:CRS84", "EPSG:6933", mapping(geom2)))
+
+        return func(geom1, geom2, *args, **kwargs)
+
+    return wrapper
+
+
+def unary_projectable_property_wrapper(func):
+    """Project func's geometry arg before computing a property.
+
+    Parameters
+    ----------
+    func : callable
+        Signature is func(geom1, *args, **kwargs)
+
+    Returns
+    -------
+    callable
+        Signature is func(geom1, projected=True, *args, **kwargs)
+
+    """
+
+    @wraps(func)
+    def wrapper(geom, *args, projected=True, **kwargs):
+        if projected:
+            geom = shape(transform_geom("OGC:CRS84", "EPSG:6933", mapping(geom)))
+
+        return func(geom, *args, **kwargs)
+
+    return wrapper
+
+
+def unary_projectable_constructive_wrapper(func):
+    """Project func's geometry arg before constructing a new geometry.
+
+    Parameters
+    ----------
+    func : callable
+        Signature is func(geom1, *args, **kwargs)
+
+    Returns
+    -------
+    callable
+        Signature is func(geom1, projected=True, *args, **kwargs)
+
+    """
+
+    @wraps(func)
+    def wrapper(geom, *args, projected=True, **kwargs):
+        if projected:
+            geom = shape(transform_geom("OGC:CRS84", "EPSG:6933", mapping(geom)))
+            product = func(geom, *args, **kwargs)
+            return shape(transform_geom("EPSG:6933", "OGC:CRS84", mapping(product)))
+        else:
+            return func(geom, *args, **kwargs)
+
+    return wrapper
+
+
+area = unary_projectable_property_wrapper(shapely.area)
+buffer = unary_projectable_constructive_wrapper(shapely.buffer)
+distance = binary_projectable_property_wrapper(shapely.distance)
+set_precision = unary_projectable_constructive_wrapper(shapely.set_precision)
+simplify = unary_projectable_constructive_wrapper(shapely.simplify)
+length = unary_projectable_property_wrapper(shapely.length)
+
 snuggs.func_map = FuncMapper(
     area=area,
+    buffer=buffer,
     collect=collect,
+    distance=distance,
     dump=dump,
     identity=identity,
+    length=length,
+    simplify=simplify,
+    set_precision=set_precision,
     vertex_count=vertex_count,
     **{
         k: getattr(itertools, k)
