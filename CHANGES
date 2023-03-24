@@ -4,6 +4,7 @@ Changes
 1.0a3 (2023-03-24)
 ------------------
 
+- Add shapely.ops functions (#23).
 - Add builtin buffer, distance, length, simplify, and set_precision functions
   which allow projected computation of these values (#27).
 

@@ -23,6 +23,7 @@ from typing import Generator, Iterable, Mapping, Union
 
 from fiona.transform import transform_geom  # type: ignore
 import shapely  # type: ignore
+import shapely.ops  # type: ignore
 from shapely.geometry import mapping, shape  # type: ignore
 from shapely.geometry.base import BaseGeometry, BaseMultipartGeometry  # type: ignore
 
@@ -45,6 +46,8 @@ class FuncMapper(UserDict, Mapping):
             return __builtins__[key]
         elif key in dir(shapely):
             return lambda g, *args, **kwargs: getattr(shapely, key)(g, *args, **kwargs)
+        elif key in dir(shapely.ops):
+            return lambda g, *args, **kwargs: getattr(shapely.ops, key)(g, *args, **kwargs)
         else:
             return (
                 lambda g, *args, **kwargs: getattr(g, key)(*args, **kwargs)
