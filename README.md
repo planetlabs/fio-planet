@@ -9,8 +9,8 @@ A package of Fiona CLI plugins from Planet Labs.
 These CLI commands are for creating Unix pipelines which manipulate streams of
 GeoJSON features. Such pipelines provide a subset of the functionality of more
 complicated tools such as GeoPandas, PostGIS, or QGIS, and are intended for use
-with streams — not rivers — of hundreds of features, where the overhead of JSON
-serialization between pieces of a pipeline is tolerable.
+with streams of hundreds of features, where the overhead of JSON serialization
+between pieces of a pipeline is tolerable.
 
 Installation
 ------------
