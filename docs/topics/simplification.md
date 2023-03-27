@@ -1,5 +1,5 @@
-Simplifying shapes
-==================
+Sizing up and simplifying shapes with fio-planet
+================================================
 
 Here are a few examples related to the Planet Developers Blog deep dive into
 [simplifying areas of interest](https://developers.planet.com/blog/2022/Dec/15/simplifying-your-complex-area-of-interest-a-planet-developers-deep-dive/).
@@ -32,14 +32,29 @@ Counting vertices after making a simplified buffer
 One traditional way of simplifying an area of interest is to buffer and
 simplify. There's no need to use jq here because fio-reduce prints out a
 sequence of exactly one feature. The effectiveness of this method depends a bit
-on the nature of the data, especially the distance between vertices.
+on the nature of the data, especially the distance between vertices. The total
+length of the perimeters of all zones is 889 kilometers.
+
+```
+fio cat zip+https://github.com/planetlabs/fio-planet/files/10045442/rmnp.zip \
+| fio map 'length g' --raw \
+| jq -s 'add'
+889332.0900809917
+```
+
+The mean distance between vertices on the edges of zones is 889332 / 28915, or
+30.7 meters.  You need to buffer and simplify by this value or more to get a
+significant reduction in the number of vertices. Choosing 40 as a buffer
+distance and simplification tolerance results in a shape with 469 vertices.
+It's a suitable area of interest for Planet APIs that require this number to be
+less than 500.
 
 ```
 fio cat zip+https://github.com/planetlabs/fio-planet/files/10045442/rmnp.zip \
 | fio reduce 'unary_union c' \
-| fio map 'simplify (buffer g 0.001) 0.001' \
+| fio map 'simplify (buffer g 40) 40' \
 | fio map 'vertex_count g' --raw
-274
+469
 ```
 
 ![](https://user-images.githubusercontent.com/33697/202821086-5bfd4437-3c42-420e-84cf-d3e1287d2d8c.png)
@@ -66,12 +81,14 @@ fio cat zip+https://github.com/planetlabs/fio-planet/files/10045442/rmnp.zip \
 Counting vertices after dissolving concave hulls of features
 ------------------------------------------------------------
 
-Convex hulls simplify, but also dilate concave areas of interest. This can be
-undesirable. Concave hulls inflate your areas less.
+Convex hulls simplify, but also dilate concave areas of interest. They fill the
+"bays", so to speak, and this can be undesirable. Concave hulls do a better job
+at preserving the concave nature of a shape and result in a smaller increase of
+area.
 
 ```
 fio cat zip+https://github.com/planetlabs/fio-planet/files/10045442/rmnp.zip \
-| fio map 'concave_hull g 0.4' --dump-parts \
+| fio map 'concave_hull g :ratio 0.4' --dump-parts \
 | fio reduce 'unary_union c' \
 | fio map 'vertex_count g' --raw
 301
