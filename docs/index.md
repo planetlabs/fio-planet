@@ -1,7 +1,8 @@
 fio-planet
 ==========
 
-A package of Fiona CLI plugins from Planet Labs.
+A package of [Fiona CLI](https://fiona.readthedocs.io/en/stable/cli.html)
+plugins from Planet Labs.
 
 These CLI commands are for creating Unix pipelines which manipulate streams of
 GeoJSON features. Such pipelines provide a subset of the functionality of more
