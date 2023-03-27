@@ -5,12 +5,14 @@ A package of Fiona CLI plugins from Planet Labs.
 
 [![](https://github.com/planetlabs/fio-planet/actions/workflows/check.yml/badge.svg)](https://github.com/planetlabs/fio-planet/actions/workflows/check.yml)
 [![](https://github.com/planetlabs/fio-planet/actions/workflows/test.yml/badge.svg)](https://github.com/planetlabs/fio-planet/actions/workflows/test.yml)
+[![Documentation Status](https://readthedocs.org/projects/fio-planet/badge/?version=latest)](https://fio-planet.readthedocs.io/en/latest/?badge=latest)
 
 These CLI commands are for creating Unix pipelines which manipulate streams of
 GeoJSON features. Such pipelines provide a subset of the functionality of more
 complicated tools such as GeoPandas, PostGIS, or QGIS, and are intended for use
 with streams of hundreds of features, where the overhead of JSON serialization
 between pieces of a pipeline is tolerable.
+
 
 Installation
 ------------
@@ -88,6 +90,8 @@ unary_union c
 
 Support
 -------
+
+Documentation is hosted at Read the Docs: https://fio-planet.readthedocs.io/en/latest/.
 
 For usage help, please use the project discussion forum or email
 developers@planet.com.
