@@ -39,12 +39,12 @@ items are the positional and keyword arguments for the named function or
 method. The list of functions and callables available in an expression
 includes:
 
+* Python operators such as `+`, `/`, and `<=`
 * Python builtins such as `dict`, `list`, and `map`
-* From functools: `reduce`.
 * All public functions from itertools, e.g. `islice`, and `repeat`
-* All functions importable from Shapely 2.0, e.g. `Point`, and
-  `unary_union`
-* All methods of Shapely geometry classes.
+* All functions importable from Shapely 2.0, e.g. `Point`, and `unary_union`
+* All methods of Shapely geometry classes
+* Functions specific to fio-planet
 
 Here's an expression that evaluates to a Shapely Point instance.
 
