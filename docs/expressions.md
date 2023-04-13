@@ -139,7 +139,7 @@ The `distance` between two geometries is in meters.
 
 A geometry can be simplified to a tolerance value in meters using `simplify`.
 There are more examples of this function under
-[topics:simplication](topcs/simplification).
+[topics:simplification](topics/simplification/).
 
 ```python
 >>> snuggs.eval('(simplify (buffer (Point 0 0) :distance 100) :tolerance 100)')
