@@ -11,7 +11,7 @@ maintainers = [
     {name = "Planet Developer Relations", email = "developers@planet.com"}
 ]
 classifiers = [
-    "Development Status :: 3 - Alpha",
+    "Development Status :: 4 - Beta",
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: Apache Software License",
 ]
