@@ -40,7 +40,6 @@ method. The list of functions and callables available in an expression
 includes:
 
 * Python builtins such as `dict`, `list`, and `map`
-* From functools: `reduce`.
 * All public functions from itertools, e.g. `islice`, and `repeat`
 * All functions importable from Shapely 2.0, e.g. `Point`, and
   `unary_union`
