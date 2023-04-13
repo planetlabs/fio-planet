@@ -1,6 +1,12 @@
 Changes
 =======
 
+1.0b1 (2023-04-18)
+------------------
+
+- Require pyparsing >= 3.0 (#29).
+- Added a documentation site hosted on Read the Docs (#26, #28, #32).
+
 1.0a3 (2023-03-24)
 ------------------
 
