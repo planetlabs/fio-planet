@@ -1,7 +1,13 @@
 Changes
 =======
 
-1.0b1 (2023-04-18)
+1.0rc1 (2023-04-18)
+------------------
+
+- The truth, is, and not functions from operators have been added to
+  the mapping of functions available in expressions.
+
+1.0b1 (2023-04-13)
 ------------------
 
 - Require pyparsing >= 3.0 (#29).

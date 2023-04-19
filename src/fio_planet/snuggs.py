@@ -60,6 +60,7 @@ from pyparsing import (  # type: ignore
     ZeroOrMore,
     alphanums,
     pyparsing_common,
+    replace_with,
 )
 
 __all__ = ["eval"]
@@ -125,6 +126,9 @@ op_map = {
     "!=": operator.ne,
     ">=": operator.ge,
     ">": operator.gt,
+    "truth": operator.truth,
+    "is": operator.is_,
+    "not": operator.not_,
 }
 
 
@@ -149,9 +153,9 @@ higher_func_map: Mapping = {
     "itemgetter": operator.itemgetter,
 }
 
-nil = Keyword("null").set_parse_action(lambda source, loc, toks: None)
-true = Keyword("true").set_parse_action(lambda source, loc, toks: True)
-false = Keyword("false").set_parse_action(lambda source, loc, toks: False)
+nil = Keyword("null").set_parse_action(replace_with(None))
+true = Keyword("true").set_parse_action(replace_with(True))
+false = Keyword("false").set_parse_action(replace_with(False))
 
 
 def resolve_var(source, loc, toks):
