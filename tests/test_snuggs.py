@@ -16,7 +16,7 @@
 
 """Tests of the snuggs module."""
 
-import pytest
+import pytest  # type: ignore
 
 from fio_planet import snuggs
 
