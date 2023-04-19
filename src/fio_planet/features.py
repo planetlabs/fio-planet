@@ -47,7 +47,9 @@ class FuncMapper(UserDict, Mapping):
         elif key in dir(shapely):
             return lambda g, *args, **kwargs: getattr(shapely, key)(g, *args, **kwargs)
         elif key in dir(shapely.ops):
-            return lambda g, *args, **kwargs: getattr(shapely.ops, key)(g, *args, **kwargs)
+            return lambda g, *args, **kwargs: getattr(shapely.ops, key)(
+                g, *args, **kwargs
+            )
         else:
             return (
                 lambda g, *args, **kwargs: getattr(g, key)(*args, **kwargs)
