@@ -16,4 +16,4 @@
 
 """fio_planet: Fiona CLI plugins from Planet Labs."""
 
-__version__ = "1.0rc1"
+__version__ = "1.0.1dev"
