@@ -1,11 +1,19 @@
 Changes
 =======
 
+1.0.1 (2023-04-21)
+------------------
+
+- The project now runs tests with warnings turned into errors, but ignores
+  pkg_resources related deprecation warnings. Those warnings are caused by
+  munch, a transitive dependency via fiona, and will be eliminated by fiona
+  1.9.4, coming in June 2023.
+
 1.0.0 (2023-04-20)
 ------------------
 
 This is the 1.0.0 release. There have been no changes since 1.0rc1.
-  
+
 1.0rc1 (2023-04-18)
 ------------------
 
