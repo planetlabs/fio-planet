@@ -18,7 +18,7 @@ Installation
 ------------
 
 ```
-python -m pip install --user --pre fio-planet
+python -m pip install --user fio-planet
 ```
 
 Usage
@@ -39,7 +39,7 @@ items are the positional and keyword arguments for the named function or
 method. The list of functions and callables available in an expression
 includes:
 
-* Python operators such as `+`, `/`, and `<=`
+* Python operators such as `+`, `/`, and `<=` plus `truth`, `not`, and `is`
 * Python builtins such as `dict`, `list`, and `map`
 * All public functions from itertools, e.g. `islice`, and `repeat`
 * All functions importable from Shapely 2.0, e.g. `Point`, and `unary_union`

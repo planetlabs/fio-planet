@@ -1,6 +1,14 @@
 Commands
 ========
 
+The fio-planet packages adds three commands to the `fio` CLI from the Fiona
+package: `filter`, `map`, and `reduce`.
+
+!!! note
+
+    fio-planet's `filter` command shadows, or overrides, Fiona's own `fio
+    filter`.
+
 fio-filter
 ----------
 
