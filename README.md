@@ -21,6 +21,19 @@ Installation
 python -m pip install --user fio-planet
 ```
 
+Example
+-------
+
+If you've been in the GIS business for more than a day, you've seen
+topologically invalid GeoJSON. Polygons with tiny bowties and rings that touch,
+that kind of thing. A stream of GeoJSON features can be made topologically
+valid with the following fio-map command.
+
+```
+fio cat zip+https://s3.amazonaws.com/fiona-testing/coutwildrnp.zip \
+| fio map 'make_valid g'
+```
+
 Usage
 -----
 
