@@ -1,7 +1,7 @@
 Expressions and functions
 =========================
 
-Expressions take the form of parenthesized lists which may contain other
+Expressions take the form of parenthesized lists that may contain other
 expressions. The first item in a list is the name of a function or method, or
 an expression that evaluates to a function. The second item is the function's
 first argument or the object to which the method is bound. The remaining list
@@ -166,7 +166,7 @@ of the given point.
 ```
 
 `fio-reduce` evaluates expressions in the context of the sequence of all input
-geometries, which is named `c`. For example, this expression dissolves input
+geometries, named `c`. For example, this expression dissolves input
 geometries using Shapely's `unary_union`.
 
 ```lisp

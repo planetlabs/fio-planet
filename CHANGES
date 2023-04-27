@@ -34,12 +34,12 @@ This is the 1.0.0 release. There have been no changes since 1.0rc1.
 
 - Add shapely.ops functions (#23).
 - Add builtin buffer, distance, length, simplify, and set_precision functions
-  which allow projected computation of these values (#27).
+  that allow projected computation of these values (#27).
 
 1.0a2 (2023-03-01)
 ------------------
 
-- Added a new builtin area function which allows projected area computation
+- Added a new builtin area function that allows projected area computation
   (#21).
 - Add short options -r for raw mode and -n for no input (#18).
 - The expression parser has been fixed so that functions with underscores and

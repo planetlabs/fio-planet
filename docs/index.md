@@ -4,7 +4,7 @@ fio-planet
 A package of [Fiona CLI](https://fiona.readthedocs.io/en/stable/cli.html)
 plugins from Planet Labs.
 
-These CLI commands are for creating Unix pipelines which manipulate streams of
+These CLI commands are for creating Unix pipelines that manipulate streams of
 GeoJSON features. Such pipelines provide a subset of the functionality of more
 complicated tools such as GeoPandas, PostGIS, or QGIS, and are intended for use
 with streams of hundreds of features, where the overhead of JSON serialization
@@ -27,7 +27,7 @@ table.  fio-filter decimates a seqence of features, fio-map multiplies and
 transforms features, and fio-reduce turns a sequence of many features into a
 sequence of exactly one.  In combination, many transformations are possible.
 
-Expressions take the form of parenthesized lists which may contain other
+Expressions take the form of parenthesized lists that may contain other
 expressions. The first item in a list is the name of a function or method, or
 an expression that evaluates to a function. The second item is the function's
 first argument or the object to which the method is bound. The remaining list
@@ -78,7 +78,7 @@ given point.
 ```
 
 fio-reduce evaluates expressions in the context of the sequence of all input
-geometries, which is named `c`. For example, this expression dissolves input
+geometries, named `c`. For example, this expression dissolves input
 geometries using Shapely's `unary_union`.
 
 ```lisp

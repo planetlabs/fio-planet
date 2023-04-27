@@ -63,9 +63,9 @@ def map_cmd(pipeline, raw, no_input, dump_parts, use_rs):
     command prints pipeline results without wrapping them in a feature
     object.
 
-    The pipeline is a string which, when evaluated by fio-map, produces
+    The pipeline is a string that, when evaluated by fio-map, produces
     a new geometry object. The pipeline consists of expressions in the
-    form of parenthesized lists which may contain other expressions.
+    form of parenthesized lists that may contain other expressions.
     The first item in a list is the name of a function or method, or an
     expression that evaluates to a function. The second item is the
     function's first argument or the object to which the method is
@@ -123,12 +123,12 @@ def map_cmd(pipeline, raw, no_input, dump_parts, use_rs):
 def filter_cmd(pipeline, use_rs):
     """Evaluate pipeline expressions to filter GeoJSON features.
 
-    The pipeline is a string which, when evaluated, gives a new value
+    The pipeline is a string that, when evaluated, gives a new value
     for each input feature. If the value evaluates to True, the feature
     passes through the filter. Otherwise the feature does not pass.
 
     The pipeline consists of expressions in the
-    form of parenthesized lists which may contain other expressions.
+    form of parenthesized lists that may contain other expressions.
     The first item in a list is the name of a function or method, or an
     expression that evaluates to a function. The second item is the
     function's first argument or the object to which the method is
@@ -178,9 +178,9 @@ def reduce_cmd(pipeline, raw, use_rs, zip_properties):
     Given a sequence of GeoJSON features (RS-delimited or not) on stdin
     this prints a single value using a provided transformation pipeline.
 
-    The pipeline is a string which, when evaluated, produces
+    The pipeline is a string that, when evaluated, produces
     a new geometry object. The pipeline consists of expressions in the
-    form of parenthesized lists which may contain other expressions.
+    form of parenthesized lists that may contain other expressions.
     The first item in a list is the name of a function or method, or an
     expression that evaluates to a function. The second item is the
     function's first argument or the object to which the method is

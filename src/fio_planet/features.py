@@ -298,7 +298,7 @@ def map_feature(
 def reduce_features(expression: str, features: Iterable[Mapping]) -> Generator:
     """Reduce a collection of features to a single value.
 
-    The pipeline is a string which, when evaluated by snuggs, produces
+    The pipeline is a string that, when evaluated by snuggs, produces
     a new value. The name of the input feature collection in the
     context of the pipeline is "c".
 
