@@ -19,7 +19,15 @@ includes:
 Expressions are evaluated by `fio_planet.features.snuggs.eval()`. Let's look at
 some examples using that function.
 
-Note: the outer parentheses are not optional within `snuggs.eval()`.
+!!! note
+
+    The outer parentheses are not optional within `snuggs.eval()`.
+
+!!! note
+
+    `snuggs.eval()` does not use Python's builtin `eval()` but isn't intended
+    to be a secure computing environment. Expressions which access the
+    computer's filesystem and create new processes are possible.
 
 ## Builtin Python functions
 
@@ -28,6 +36,7 @@ Note: the outer parentheses are not optional within `snuggs.eval()`.
 ```python
 >>> snuggs.eval('(bool 0)')
 False
+
 ```
 
 `range`:
@@ -35,6 +44,7 @@ False
 ```python
 >>> snuggs.eval('(range 1 4)')
 range(1, 4)
+
 ```
 
 `list`:
@@ -42,6 +52,7 @@ range(1, 4)
 ```python
 >>> snuggs.eval('(list (range 1 4))')
 [1, 2, 3]
+
 ```
 
 Values can be bound to names for use in expressions.
@@ -49,6 +60,7 @@ Values can be bound to names for use in expressions.
 ```python
 >>> snuggs.eval('(list (range start stop))', start=0, stop=5)
 [0, 1, 2, 3, 4]
+
 ```
 
 ## Itertools functions
@@ -58,6 +70,7 @@ Here's an example of using `itertools.repeat()`.
 ```python
 >>> snuggs.eval('(list (repeat "*" times))', times=6)
 ['*', '*', '*', '*', '*', '*']
+
 ```
 
 ## Shapely functions
@@ -67,6 +80,7 @@ Here's an expression that evaluates to a Shapely Point instance.
 ```python
 >>> snuggs.eval('(Point 0 0)')
 <POINT (0 0)>
+
 ```
 
 The expression below evaluates to a MultiPoint instance.
@@ -74,6 +88,7 @@ The expression below evaluates to a MultiPoint instance.
 ```python
 >>> snuggs.eval('(union (Point 0 0) (Point 1 1))')
 <MULTIPOINT (0 0, 1 1)>
+
 ```
 
 ## Functions specific to fio-planet
@@ -91,6 +106,7 @@ geometries.
 <GEOMETRYCOLLECTION (POINT (0 0), POINT (1 1))>
 >>> snuggs.eval('(list (dump (collect (Point 0 0) (Point 1 1))))')
 [<POINT (0 0)>, <POINT (1 1)>]
+
 ```
 
 The `identity` function returns its single argument.
@@ -98,6 +114,7 @@ The `identity` function returns its single argument.
 ```python
 >>> snuggs.eval('(identity 42)')
 42
+
 ```
 
 To count the number of vertices in a geometry, use `vertex_count`.
@@ -105,6 +122,7 @@ To count the number of vertices in a geometry, use `vertex_count`.
 ```python
 >>> snuggs.eval('(vertex_count (Point 0 0))')
 1
+
 ```
 
 The `area`, `buffer`, `distance`, `length`, `simplify`, and `set_precision`
@@ -119,6 +137,7 @@ longitude and latitude degrees, by a given distance in meters.
 ```python
 >>> snuggs.eval('(buffer (Point 0 0) :distance 100)')
 <POLYGON ((0.001 0, 0.001 0, 0.001 0, 0.001 0, 0.001 -0.001, 0.001 -0.001, 0...>
+
 ```
 
 The `area` and `length` of this polygon have units of square meter and meter.
@@ -128,6 +147,7 @@ The `area` and `length` of this polygon have units of square meter and meter.
 31214.451487413342
 >>> snuggs.eval('(length (buffer (Point 0 0) :distance 100))')
 627.3096977558143
+
 ```
 
 The `distance` between two geometries is in meters.
@@ -135,6 +155,7 @@ The `distance` between two geometries is in meters.
 ```python
 >>> snuggs.eval('(distance (Point 0 0) (Point 0.1 0.1))')
 15995.164946207413
+
 ```
 
 A geometry can be simplified to a tolerance value in meters using `simplify`.
@@ -144,6 +165,7 @@ There are more examples of this function under
 ```python
 >>> snuggs.eval('(simplify (buffer (Point 0 0) :distance 100) :tolerance 100)')
 <POLYGON ((0.001 0, 0 -0.001, -0.001 0, 0 0.001, 0.001 0))>
+
 ```
 
 The `set_precision` function snaps a geometry to a fixed precision grid with a
@@ -152,17 +174,18 @@ size in meters.
 ```python
 >>> snuggs.eval('(set_precision (Point 0.001 0.001) :grid_size 500)')
 <POINT (0 0)>
+
 ```
 
 ## Feature and geometry context for expressions
 
 `fio-filter` and `fio-map` evaluate expressions in the context of a GeoJSON
 feature and its geometry attribute. These are named `f` and `g`. For example,
-here is an expression that tests whether the input feature is within 50 meters
-of the given point.
+here is an expression that tests whether the input feature is within 62.5
+kilometers of the given point.
 
 ```lisp
-<= (distance g (Point -105.0 39.753056)) 50.0
+--8<-- "tests/test_cli.py:filter"
 ```
 
 `fio-reduce` evaluates expressions in the context of the sequence of all input
@@ -170,5 +193,5 @@ geometries, named `c`. For example, this expression dissolves input
 geometries using Shapely's `unary_union`.
 
 ```lisp
-unary_union c
+--8<-- "tests/test_cli.py:reduce"
 ```
