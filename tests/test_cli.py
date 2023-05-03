@@ -25,17 +25,25 @@ def test_map_count():
     with open("tests/data/trio.seq") as seq:
         data = seq.read()
 
-    # --8<-- [start:map]
+    # Define our map arg using a mkdocs snippet.
+    arg = """
+    --8<-- [start:map]
+    centroid (buffer g 1.0)
+    --8<-- [end:map]
+    """.splitlines()[
+        2
+    ].strip()
+
     runner = CliRunner()
     result = runner.invoke(
         main_group,
-        ["map", "centroid (buffer g 1.0)"],
-        input=data, foo=42,
+        ["map", arg],  # "centroid (buffer g 1.0)"],
+        input=data,
     )
-    # --8<-- [end:map]
 
     assert result.exit_code == 0
     assert result.output.count('"type": "Point"') == 3
+
 
 @pytest.mark.parametrize("raw_opt", ["--raw", "-r"])
 def test_reduce_area(raw_opt):
@@ -58,8 +66,17 @@ def test_reduce_union():
     with open("tests/data/trio.seq") as seq:
         data = seq.read()
 
+    # Define our reduce command using a mkdocs snippet.
+    arg = """
+    --8<-- [start:reduce]
+    unary_union c
+    --8<-- [end:reduce]
+    """.splitlines()[
+        2
+    ].strip()
+
     runner = CliRunner()
-    result = runner.invoke(main_group, ["reduce", "unary_union c"], input=data)
+    result = runner.invoke(main_group, ["reduce", arg], input=data)
     assert result.exit_code == 0
     assert result.output.count('"type": "Polygon"') == 1
     assert result.output.count('"type": "LineString"') == 1
@@ -90,10 +107,19 @@ def test_filter():
     with open("tests/data/trio.seq") as seq:
         data = seq.read()
 
+    # Define our reduce command using a mkdocs snippet.
+    arg = """
+    --8<-- [start:filter]
+    < (distance g (Point 4 43)) 62.5E3
+    --8<-- [end:filter]
+    """.splitlines()[
+        2
+    ].strip()
+
     runner = CliRunner()
     result = runner.invoke(
         main_group,
-        ["filter", "< (distance g (Point 4 43)) 62.5E3"],
+        ["filter", arg],
         input=data,
         catch_exceptions=False,
     )

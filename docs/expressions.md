@@ -181,11 +181,11 @@ size in meters.
 
 `fio-filter` and `fio-map` evaluate expressions in the context of a GeoJSON
 feature and its geometry attribute. These are named `f` and `g`. For example,
-here is an expression that tests whether the input feature is within 50 meters
-of the given point.
+here is an expression that tests whether the input feature is within 62.5
+kilometers of the given point.
 
 ```lisp
-<= (distance g (Point -105.0 39.753056)) 50.0
+--8<-- "tests/test_cli.py:filter"
 ```
 
 `fio-reduce` evaluates expressions in the context of the sequence of all input
@@ -193,11 +193,5 @@ geometries, named `c`. For example, this expression dissolves input
 geometries using Shapely's `unary_union`.
 
 ```lisp
-unary_union c
-```
-
-## Snippet test
-
-```python
---8<-- "tests/test_cli.py:map"
+--8<-- "tests/test_cli.py:reduce"
 ```
