@@ -25,15 +25,17 @@ def test_map_count():
     with open("tests/data/trio.seq") as seq:
         data = seq.read()
 
+    # --8<-- [start:map]
     runner = CliRunner()
     result = runner.invoke(
         main_group,
         ["map", "centroid (buffer g 1.0)"],
-        input=data,
+        input=data, foo=42,
     )
+    # --8<-- [end:map]
+
     assert result.exit_code == 0
     assert result.output.count('"type": "Point"') == 3
-
 
 @pytest.mark.parametrize("raw_opt", ["--raw", "-r"])
 def test_reduce_area(raw_opt):

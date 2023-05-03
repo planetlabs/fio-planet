@@ -68,6 +68,9 @@ nav:
   - "Topics": 'topics'
 
 markdown_extensions:
+  - pymdownx.inlinehilite
+  - pymdownx.snippets:
+      dedent_subsections: True
   - pymdownx.highlight
   - pymdownx.superfences
   - mkdocs-click
