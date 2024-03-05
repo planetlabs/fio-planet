@@ -138,8 +138,3 @@ Authors and acknowledgment
 Contributors to this project are
 
 * Sean Gillies <sean.gillies@planet.com>
-
-License
--------
-
-Apache License, Version 2.0.
